@@ -1,6 +1,6 @@
 An Angular library with 146 directives for using Semantic UI Modules.
 
-=== Terminology
+### Terminology
 
 - `Module` - a Semantic UI component that can be controlled with javascript.
 - `Behavior` - a Semantic UI command sent to the module to modify its state.
