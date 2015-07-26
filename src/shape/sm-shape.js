@@ -32,5 +32,3 @@
   });
 
 })( angular.module('semantic-ui') );
-
-

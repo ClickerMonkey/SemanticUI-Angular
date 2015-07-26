@@ -85,5 +85,3 @@
   }]);
 
 })( angular.module('semantic-ui') );
-
-

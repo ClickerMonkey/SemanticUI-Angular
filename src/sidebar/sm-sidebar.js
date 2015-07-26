@@ -90,4 +90,3 @@
   }]);
 
 })( angular.module('semantic-ui') );
-
