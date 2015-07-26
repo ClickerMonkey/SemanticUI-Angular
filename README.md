@@ -1,4 +1,4 @@
-An Angular library with 146 directives for using Semantic UI Modules.
+An Angular library with over 100 directives for using Semantic UI Modules.
 
 ### Terminology
 
