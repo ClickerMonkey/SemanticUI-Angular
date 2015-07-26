@@ -14,11 +14,15 @@
       },
       onEvent: function(settings, evt, func)
       {
-        settings[ evt ] = (function(existing) {
-          return function EventHandler() {
-            if ( angular.isFunction( existing ) ) {
+        settings[ evt ] = (function(existing) 
+        {
+          return function EventHandler() 
+          {
+            if ( angular.isFunction( existing ) ) 
+            {
               existing.apply( this, arguments );
             }
+            
             func.apply( this, arguments );
           }
         })( settings[ evt ] );

@@ -8,16 +8,9 @@
   }]);
 
   var BEHAVIORS = {
-    smDimmerAddContent:     'add content',
     smDimmerShow:           'show',
     smDimmerHide:           'hide',
-    smDimmerToggle:         'toggle',
-    smDimmerSetOpacity:     'set opacity',
-    smDimmerSetActive:      'set active',
-    smDimmerSetDimmable:    'set dimmable',
-    smDimmerSetDimmed:      'set dimmed',
-    smDimmerSetPageDimmer:  'set page dimmer',
-    smDimmerSetDisabled:    'set disabled'
+    smDimmerToggle:         'toggle'
   };
 
   angular.forEach( BEHAVIORS, function(method, directive)
@@ -56,7 +49,6 @@
       {
         var settings = scope.settings || {};
 
-        /*
         var visibleWatcher = SemanticUI.watcher( scope, 'visible', 
           function(updated) {
             element.dimmer( updated ? 'show' : 'hide' );
@@ -74,7 +66,6 @@
             visibleWatcher.set( false );
           }
         );
-*/
 
         SemanticUI.linkEvents( scope, settings, {
           onShow:   'onShow',
