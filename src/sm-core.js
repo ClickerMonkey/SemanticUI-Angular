@@ -2,9 +2,10 @@
 {
 
   app.factory('SemanticUI', 
-  function SemanticUI() 
+  function SemanticUIFactory() 
   {
-    return {
+    var SemanticUI = 
+    {
       bindAttribute: function(scope, variable, element, attribute)
       {
         scope.$watch( variable, function(updated)
@@ -12,49 +13,59 @@
           element.attr( attribute, updated );
         });
       },
-      onEvent: function(settings, evt, func)
+      onEvent: function(settings, evt, func, undefined)
       {
         settings[ evt ] = (function(existing) 
         {
           return function EventHandler() 
           {
+            var result0 = undefined;
+
             if ( angular.isFunction( existing ) ) 
             {
-              existing.apply( this, arguments );
+              result0 = existing.apply( this, arguments );
             }
             
-            func.apply( this, arguments );
+            var result1 = func.apply( this, arguments );
+
+            return ( result0 !== undefined ? result0 : result1 );
           }
         })( settings[ evt ] );
       },
-      linkEvents: function(scope, settings, linkings)
+      linkEvents: function(scope, settings, defaults, linkings)
       {
         for (var evt in linkings)
         {
-          var scopeVariable = linkings[ evt ];
-
-          this.onEvent( settings, evt, function()
+          (function(variable, evt)
           {
-            var scopeValue = scope[ scopeVariable ];
-
-            if ( angular.isFunction( scopeValue ) )
+            SemanticUI.onEvent( settings, evt, function()
             {
-              scopeValue.apply( this, arguments );
-            }
-          });
+              var scopeValue = scope[ variable ];
+
+              if ( angular.isFunction( scopeValue ) )
+              {
+                return scopeValue.apply( this, arguments );
+              }
+              else
+              {
+                return defaults[ evt ].apply( this, arguments );
+              }
+            });
+
+          })( linkings[ evt ], evt );
         }
       },
       createBind: function(attribute, module)
       {
-        var helper = this;
         var scope = {};
         scope[ attribute ] = '=';
 
         return {
           restrict: 'A',
           scope: scope,
-          link: function(scope, element, attributes) {
-            helper.initBind( scope, attribute, element, module );
+          link: function(scope, element, attributes) 
+          {
+            SemanticUI.initBind( scope, attribute, element, module );
           }
         };
       },
@@ -67,15 +78,15 @@
       },
       createBehavior: function(attribute, module, method)
       {
-        var helper = this;
         var scope = {};
         scope[ attribute ] = '=';
 
         return {
           restrict: 'A',
           scope: scope,
-          link: function(scope, element, attributes) {
-            helper.initBehavior( scope, attribute, element, module, method );
+          link: function(scope, element, attributes) 
+          {
+            SemanticUI.initBehavior( scope, attribute, element, module, method );
           }
         };
       },
@@ -163,6 +174,8 @@
         }
       }
     };
+
+    return SemanticUI;
   });
 
 })( angular.module('semantic-ui', []) );

@@ -56,7 +56,7 @@
       {
         var settings = scope.settings || {};
 
-        SemanticUI.linkEvents( scope, settings, {
+        SemanticUI.linkEvents( scope, settings, $.fn.progress.settings, {
           onChange:   'onChange',
           onSuccess:  'onSuccess',
           onActive:   'onActive',

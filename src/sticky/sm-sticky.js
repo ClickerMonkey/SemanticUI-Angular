@@ -51,7 +51,7 @@
         {
           var settings = scope.settings || {};
 
-          SemanticUI.linkEvents( scope, settings, {
+          SemanticUI.linkEvents( scope, settings, $.fn.sticky.settings, {
             onReposition:   'onReposition',
             onScroll:       'onScroll',
             onStick:        'onStick',

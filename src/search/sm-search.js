@@ -84,7 +84,7 @@
           };
         }
 
-        SemanticUI.linkEvents( scope, settings, {
+        SemanticUI.linkEvents( scope, settings, $.fn.search.settings, {
           onResultsAdd:     'onResultsAdd',
           onSearchQuery:    'onSearchQuery',
           onResults:        'onResults',

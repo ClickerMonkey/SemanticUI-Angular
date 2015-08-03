@@ -59,7 +59,7 @@
         if ( scope.placeholder ) settings.placeholder = scope.placeholder;
         if ( scope.icon ) settings.icon = scope.icon;
 
-        SemanticUI.linkEvents( scope, settings, {
+        SemanticUI.linkEvents( scope, settings, $.fn.embed.settings, {
           onCreate:             'onCreate',
           onDisplay:            'onDisplay',
           onPlaceholderDisplay: 'onPlaceholderDisplay',

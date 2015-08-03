@@ -70,7 +70,7 @@
             }
           );
 
-          SemanticUI.linkEvents( scope, settings, {
+          SemanticUI.linkEvents( scope, settings, $.fn.rating.settings, {
             onRate: 'onRate'
           });
 

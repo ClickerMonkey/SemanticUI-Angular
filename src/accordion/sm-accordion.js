@@ -47,7 +47,7 @@
         {
           var settings = scope.settings || {};
 
-          SemanticUI.linkEvents( scope, settings, {
+          SemanticUI.linkEvents( scope, settings, $.fn.accordion.settings, {
             onOpening: 'onOpening',
             onOpen: 'onOpen',
             onClosing: 'onClosing',

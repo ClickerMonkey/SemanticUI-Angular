@@ -71,7 +71,7 @@
           }
         );
 
-        SemanticUI.linkEvents( scope, settings, {
+        SemanticUI.linkEvents( scope, settings, $.fn.sidebar.settings, {
           onVisible: 'onVisible',
           onShow:    'onShow',
           onChange:  'onChange',

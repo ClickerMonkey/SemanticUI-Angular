@@ -153,7 +153,7 @@
           }
         );
 
-        SemanticUI.linkEvents( scope, settings, {
+        SemanticUI.linkEvents( scope, settings, $.fn.dropdown.settings, {
           onChange:       'onChange',
           onAdd:          'onAdd',
           onRemove:       'onRemove',
@@ -182,7 +182,8 @@
         // Initialize the element with the given settings.
         element.dropdown( settings ); 
 
-        if ( angular.isFunction( scope.onInit ) ) {
+        if ( angular.isFunction( scope.onInit ) ) 
+        {
           scope.onInit( element );
         }
       }

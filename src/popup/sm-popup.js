@@ -138,7 +138,7 @@
       {
         var settings = scope.smPopupDisplaySettings || {};
 
-        SemanticUI.linkEvents( scope, settings, {
+        SemanticUI.linkEvents( scope, settings, $.fn.popup.settings, {
           onCreate:  'smPopupDisplayOnCreate',
           onRemove:  'smPopupDisplayOnRemove',
           onShow:    'smPopupDisplayOnShow',

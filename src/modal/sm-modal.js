@@ -71,7 +71,7 @@
           }
         );
 
-        SemanticUI.linkEvents( scope, settings, {
+        SemanticUI.linkEvents( scope, settings, $.fn.modal.settings, {
           onShow:    'onShow',
           onVisible: 'onVisible',
           onHide:    'onHide',

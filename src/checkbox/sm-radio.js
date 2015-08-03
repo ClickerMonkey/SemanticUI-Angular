@@ -99,7 +99,7 @@
             }
           );
 
-          SemanticUI.linkEvents( scope, settings, {
+          SemanticUI.linkEvents( scope, settings, $.fn.checkbox.settings, {
             onChange:        'onChange',
             onChecked:       'onChecked',
             onUnchecked:     'onUnchecked',

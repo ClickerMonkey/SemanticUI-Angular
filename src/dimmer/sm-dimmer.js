@@ -67,7 +67,7 @@
           }
         );
 
-        SemanticUI.linkEvents( scope, settings, {
+        SemanticUI.linkEvents( scope, settings, $.fn.dimmer.settings, {
           onShow:   'onShow',
           onHide:   'onHide',
           onChange: 'onChange'
