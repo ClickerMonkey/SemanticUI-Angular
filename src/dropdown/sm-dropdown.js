@@ -72,7 +72,7 @@
 
       template: [
         '<div class="ui dropdown">',
-          '<span class="text" ng-class="{default: hasDefault()}" sm-html="getText()"></span>',
+          '<div class="text" sm-class-once="{default: hasDefault()}" sm-html-once="getText()"></div>',
           '<i class="dropdown icon"></i>',
           '<sm-flat-menu></sm-flat-menu>',
         '</div>'
@@ -93,13 +93,7 @@
         // Determines whether this dropdown should currently display the default text.
         $scope.hasDefault = function() 
         {
-          if ( !$scope.defaultText ) {
-            return false;
-          }
-          if ( $scope.findMatchingItem( $scope.model ) ) {
-            return false;
-          }
-          return true;
+          return ( $scope.defaultText && !$scope.findMatchingItem( $scope.model ) );
         }; 
 
         // Gets the current text for the drop down. If the current model has a value which is found
@@ -135,57 +129,77 @@
       },
       link: function(scope, element, attrs) 
       {
-        var hashMap = {};
-        var settings = scope.settings || {};
-
-        // When the model changes, set the value on the drop down
-        var modelWatcher = SemanticUI.watcher( scope, 'model', 
-          function(updated) {
-            element.dropdown( 'set value', updated );
-          }
-        );
-
-        // Inject an onChange function into the settings which sets the model value
-        // and causes the scope to be updated.
-        SemanticUI.onEvent( settings, 'onChange', 
-          function(value) {
-            modelWatcher.set( value in hashMap ? hashMap[ value ] : value );
-          }
-        );
-
-        SemanticUI.linkEvents( scope, settings, $.fn.dropdown.settings, {
-          onChange:       'onChange',
-          onAdd:          'onAdd',
-          onRemove:       'onRemove',
-          onLabelCreate:  'onLabelCreate',
-          onLabelSelect:  'onLabelSelect',
-          onNoResults:    'onNoResults',
-          onShow:         'onShow',
-          onHide:         'onHide'
-        });
-
-        // When items changes, rebuild the hashMap
-        scope.$watch( 'items', function(updated)
+        element.ready(function()
         {
-          hashMap = {};
+          var hashMap = {};
+          var settings = scope.settings || {};
 
-          angular.forEach( updated, function(item)
-          {
-            if ( item.$$hashKey )
-            {
-              hashMap[ item.$$hashKey ] = item;
+          // When the model changes, set the value on the drop down
+          var modelWatcher = SemanticUI.watcher( scope, 'model', 
+            function(updated) {
+              element.dropdown( 'set value', updated );
             }
+          );
+
+          // Inject an onChange function into the settings which sets the model value
+          // and causes the scope to be updated.
+          SemanticUI.onEvent( settings, 'onChange', 
+            function(value) {
+
+              if ( element.dropdown('is multiple') ) 
+              {
+                var values = element.dropdown('get values');
+                var computedValues = [];
+
+                for (var i = 0; i < values.length; i++) 
+                {
+                  computedValues[ i ] = values[ i ] in hashMap ? hashMap[ values[ i ] ] : values[ i ];
+                }
+
+                modelWatcher.set( computedValues );
+              } 
+              else 
+              {
+                modelWatcher.set( value in hashMap ? hashMap[ value ] : value );
+              }
+            }
+          );
+
+          SemanticUI.linkEvents( scope, settings, $.fn.dropdown.settings, {
+            onChange:       'onChange',
+            onAdd:          'onAdd',
+            onRemove:       'onRemove',
+            onLabelCreate:  'onLabelCreate',
+            onLabelSelect:  'onLabelSelect',
+            onNoResults:    'onNoResults',
+            onShow:         'onShow',
+            onHide:         'onHide'
           });
 
-        }, true );
+          // When items changes, rebuild the hashMap
+          scope.$watch( 'items', function(updated)
+          {
+            hashMap = {};
 
-        // Initialize the element with the given settings.
-        element.dropdown( settings ); 
+            angular.forEach( updated, function(item)
+            {
+              if ( item.$$hashKey )
+              {
+                hashMap[ item.$$hashKey ] = item;
+              }
+            });
 
-        if ( angular.isFunction( scope.onInit ) ) 
-        {
-          scope.onInit( element );
-        }
+          }, true );
+
+          // Initialize the element with the given settings.
+          element.dropdown( settings );
+
+          if ( angular.isFunction( scope.onInit ) ) 
+          {
+            scope.onInit( element );
+          }
+
+        });
       }
     }
   }]);

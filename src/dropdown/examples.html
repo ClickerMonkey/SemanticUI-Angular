@@ -2,19 +2,12 @@
 <html>
   <head>
 
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/semantic-ui/2.0.5/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/semantic-ui/2.0.7/semantic.min.css">
     <link rel="stylesheet" type="text/css" href="../examples.css">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/semantic-ui/2.0.5/semantic.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/semantic-ui/2.0.7/semantic.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
-
-    <!-- OFFLINE -->
-    <script src="../../../neurohome/bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="../../../neurohome/bower_components/angular/angular.min.js"></script>
-    <script src="../../../neurohome/bower_components/semantic-ui/dist/semantic.js"></script>
-    <link rel="stylesheet" type="text/css" href="../../../neurohome/bower_components/semantic-ui/dist/semantic.css">
-    <!-- -->
 
     <script src="../sm-core.js"></script>
     <script src="../sm-addons.js"></script>
@@ -292,6 +285,17 @@
             'Angular', 'CSS', 'Graphic Design', 'Ember', 'HTML', 'Information Architecture', 'Javascript',
             'Mechanical Engineering', 'Meteor', 'NodeJS', 'Plumbing', 'Python', 'Rails', 'React'
           ];
+
+          $scope.model4 = [];
+          $scope.model4b = [];
+
+          $scope.model5 = null;
+          $scope.model5b = [];
+
+          $scope.model6 = null;
+
+          $scope.model7 = [];
+          $scope.model7b = null;
         })
       ;
     </script>
@@ -312,7 +316,7 @@
         <p>A dropdown</p>
 
         <div data-copy-to="#example0">
-          <sm-dropdown model="model0" items="options0" label="item" value="item" default-text="'File'"></sm-dropdown>
+          <sm-dropdown model="model0" items="options0" label="item" value="item" default-text="'File'" settings="{action:'hide'}"></sm-dropdown>
         </div>
 
         <pre class="ui segment prettyprint lang-html" id="example0"></pre>
@@ -368,6 +372,102 @@
         </div>
 
         <pre class="ui segment prettyprint lang-html" id="example3"></pre>
+
+      </div>
+      <div class="ui segment">
+
+        <h3 class="ui header">Maximum Selections</h3>
+
+        <p>Using <code>maxSelections</code> lets you force a maximum number of selections. You can also use form validation rules to specify minimum and maximum validation settings for multi-selects inside forms.</p>
+
+        <div class="current value">
+          {{ model4 }}
+        </div>
+        <div class="ui sub header">Selection</div>
+
+        <div data-copy-to="#example4">
+          <sm-dropdown class="fluid multiple search selection" model="model4" items="libraries" label="item" value="item" default-text="'Skills'" settings="{maxSelections: 3}"></sm-dropdown>
+        </div>
+
+        <pre class="ui segment prettyprint lang-html" id="example4"></pre>
+
+        <div class="current value">
+          {{ model4b }}
+        </div>
+        <div class="ui sub header">Search Selection</div>
+
+        <div data-copy-to="#example4b">
+          <sm-dropdown class="fluid multiple search selection" model="model4b" items="countries" label="item.label" value="item.value" default-text="'Select Country'" settings="{maxSelections: 3}"></sm-dropdown>
+        </div>
+
+        <pre class="ui segment prettyprint lang-html" id="example4b"></pre>
+
+      </div>
+      <div class="ui segment">
+
+        <h3 class="ui header">Tagging and User Additions</h3>
+
+        <p>Using <code>allowAdditions: true</code> gives users the ability to add their own options. This can work with either single or multiple search select dropdowns</p>
+
+        <div class="current value">
+          {{ model5 }}
+        </div>
+        <div class="ui sub header">Single</div>
+
+        <div data-copy-to="#example5">
+          <sm-dropdown class="fluid search selection" model="model5" items="libraries" label="item" value="item" default-text="'Skills'" settings="{allowAdditions: true}"></sm-dropdown>
+        </div>
+
+        <pre class="ui segment prettyprint lang-html" id="example5"></pre>
+
+        <div class="current value">
+          {{ model5b }}
+        </div>
+        <div class="ui sub header">Multiple</div>
+        <div data-copy-to="#example5b">
+          <sm-dropdown class="fluid multiple search selection" model="model5b" items="countries" label="item.label" value="item.value" default-text="'Select Country'" settings="{allowAdditions: true}"></sm-dropdown>
+        </div>
+
+        <pre class="ui segment prettyprint lang-html" id="example5b"></pre>
+
+      </div>
+      <div class="ui segment">
+
+        <h3 class="ui header">Text Labels</h3>
+
+        <div class="current value">
+          {{ model6 }}
+        </div>
+
+        <p>Sometimes multiselect include options which are long and would appear awkwardly as labels. Setting <code>useLabels: false</code> will display a selected count, and allow reselection directly from the menu.</p>
+
+        <div data-copy-to="#example6">
+          <sm-dropdown class="fluid multiple selection" model="model6" items="libraries" label="item" value="item" default-text="'Select Libraries'" settings="{useLabels: false}"></sm-dropdown>
+        </div>
+
+        <pre class="ui segment prettyprint lang-html" id="example6"></pre>
+
+      </div>
+      <div class="ui segment">
+
+        <h3 class="ui header">Clearing Dropdown</h3>
+
+        <div class="current value">
+          {{ model7b }}
+        </div>
+        <div class="current value">
+          {{ model7 }}
+        </div>
+
+        <p>You can reset a form field to its placeholder value.</p>
+
+        <div data-copy-to="#example7">
+          <sm-dropdown class="example7 multiple selection" model="model7" items="libraries" label="item" value="item" default-text="'Libraries'"></sm-dropdown>
+          <sm-dropdown class="example7 selection" model="model7b" items="libraries" label="item" value="item" default-text="'Library'"></sm-dropdown>
+          <sm-button sm-dropdown-clear="'.example7'">Clear</sm-button>
+        </div>
+
+        <pre class="ui segment prettyprint lang-html" id="example7"></pre>
 
       </div>
       

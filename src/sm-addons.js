@@ -15,6 +15,34 @@
     }
   });
 
+  app.directive('smHtmlOnce', ['$parse',
+  function SemanticHtmlOnce($parse) {
+    return {
+      restrict: 'A',
+      link: function(scope, element, attributes) 
+      {
+        element.html( $parse( attributes.smHtmlOnce )( scope ) );
+      }
+    }
+  }]);
+
+  app.directive('smClassOnce', ['$parse',
+  function SemanticClassOnce($parse)
+  {
+    return {
+      restrict: 'A',
+      link: function(scope, element, attributes) 
+      {
+        var classes = $parse( attributes.smClassOnce )( scope );
+        
+        angular.forEach( classes, function( addClass, className )
+        {
+          element.toggleClass( className, addClass );
+        });
+      }
+    }
+  }]);
+
   app.directive('smButton', 
   function SemanticButton() 
   {
