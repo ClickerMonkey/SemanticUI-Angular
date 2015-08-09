@@ -37,6 +37,7 @@
         /* Optional */
         source: '@',
         sourceId: '@',
+        url: '@',
         placeholder: '@',
         icon: '@',
         settings: '=',
@@ -58,6 +59,7 @@
         if ( scope.sourceId ) settings.id = scope.sourceId;
         if ( scope.placeholder ) settings.placeholder = scope.placeholder;
         if ( scope.icon ) settings.icon = scope.icon;
+        if ( scope.url ) settings.url = scope.url;
 
         SemanticUI.linkEvents( scope, settings, $.fn.embed.settings, {
           onCreate:             'onCreate',
