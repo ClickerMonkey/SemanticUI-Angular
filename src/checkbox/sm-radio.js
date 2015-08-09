@@ -59,11 +59,36 @@
         '</div>'
       ].join('\n'),
 
-      link: function(scope, element, attrs) 
+      link: function(scope, element, attributes) 
       {
         element.ready(function()
         {
           var settings = scope.settings || {};
+
+          SemanticUI.linkSettings( scope, element, attributes, 'checkbox' );
+
+          if ( attributes.enabled )
+          {
+            var enabledWatcher = SemanticUI.watcher( scope, 'enabled',
+              function(updated) {
+                if ( angular.isDefined( updated ) ) {
+                  element.checkbox( updated ? 'set enabled' : 'set disabled' ); 
+                }
+              }
+            );
+
+            SemanticUI.onEvent( settings, 'onEnable', 
+              function(value) {
+                enabledWatcher.set( true );
+              }
+            );
+
+            SemanticUI.onEvent( settings, 'onDisable', 
+              function(value) {
+                enabledWatcher.set( false );
+              }
+            );
+          }
 
           var modelWatcher = SemanticUI.watcher( scope, 'model', 
             function(updated) {
@@ -73,29 +98,9 @@
             }
           );
 
-          var enabledWatcher = SemanticUI.watcher( scope, 'enabled',
-            function(updated) {
-              if ( angular.isDefined( updated ) ) {
-                element.checkbox( updated ? 'set enabled' : 'set disabled' ); 
-              }
-            }
-          );
-
           SemanticUI.onEvent( settings, 'onChecked', 
             function() {
               modelWatcher.set( scope.value );
-            }
-          );
-
-          SemanticUI.onEvent( settings, 'onEnable', 
-            function(value) {
-              enabledWatcher.set( true );
-            }
-          );
-
-          SemanticUI.onEvent( settings, 'onDisable', 
-            function(value) {
-              enabledWatcher.set( false );
             }
           );
 

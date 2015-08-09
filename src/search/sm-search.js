@@ -37,7 +37,7 @@
 
       scope: {
         /* Required */
-        value: '=',
+        model: '=',
         /* Optional */
         icon: '@',
         placeholder: '@',
@@ -56,7 +56,7 @@
       template: [
         '<div class="ui search">',
         '  <div class="ui icon input">',
-        '    <input class="prompt" type="text" placeholder="{{ placeholder }}" ng-model="value">',
+        '    <input class="prompt" type="text" placeholder="{{ placeholder }}" ng-model="model">',
         '    <i class="{{ icon }} icon"></i>',
         '  </div>',
         '  <div class="results"></div>',
@@ -72,17 +72,10 @@
       {
         var settings = scope.settings || {};
 
-        if ( scope.local )
-        {
-          settings.source = scope.local;
-        }
+        SemanticUI.linkSettings( scope, element, attributes, 'search' );
 
-        if ( scope.remote )
-        {
-          settings.apiSettings = {
-            url: scope.remote
-          };
-        }
+        if ( scope.local ) settings.source = scope.local;
+        if ( scope.remote ) settings.apiSettings = { url: scope.remote };
 
         SemanticUI.linkEvents( scope, settings, $.fn.search.settings, {
           onResultsAdd:     'onResultsAdd',

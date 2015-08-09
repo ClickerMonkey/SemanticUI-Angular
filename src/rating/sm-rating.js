@@ -33,7 +33,7 @@
 
       scope: {
         /* Required */
-        value: '=',
+        model: '=',
         total: '=',
         /* Optional */
         type: '@',
@@ -44,7 +44,7 @@
         onRate: '='
       },
 
-      template: '<div class="ui rating {{ type }}" data-rating="{{ value }}" data-max-rating="{{ total }}"></div>',
+      template: '<div class="ui rating {{ type }}" data-rating="{{ model }}" data-max-rating="{{ total }}"></div>',
 
       link: function(scope, element, attributes) 
       {
@@ -52,13 +52,18 @@
         {
           var settings = scope.settings || {};
 
-          var disabledWatcher = SemanticUI.watcher( scope, 'disabled', 
-            function(updated) {
-              element.rating( updated ? 'disable' : 'enable' );
-            }
-          );
+          SemanticUI.linkSettings( scope, element, attributes, 'rating' );
 
-          var valueWatcher = SemanticUI.watcher( scope, 'value', 
+          if ( attributes.disabled )
+          {
+            var disabledWatcher = SemanticUI.watcher( scope, 'disabled', 
+              function(updated) {
+                element.rating( updated ? 'disable' : 'enable' );
+              }
+            );
+          }
+
+          var valueWatcher = SemanticUI.watcher( scope, 'model', 
             function(updated) {
               element.rating( 'set rating', updated );
             }

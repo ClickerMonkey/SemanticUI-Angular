@@ -59,8 +59,11 @@
         element.ready(function()
         {
           var settings = scope.settings || {};
+          var elements = element.children('.item');
 
-          element.children('.item').tab( settings );
+          SemanticUI.linkSettings( scope, elements, attributes, 'tab' );
+
+          elements.tab( settings );
         });
       }
     }

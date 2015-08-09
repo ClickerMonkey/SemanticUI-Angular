@@ -55,6 +55,8 @@
       {
         var settings = scope.settings || {};
 
+        SemanticUI.linkSettings( scope, element, attributes, 'embed' );
+
         if ( scope.source ) settings.source = scope.source;
         if ( scope.sourceId ) settings.id = scope.sourceId;
         if ( scope.placeholder ) settings.placeholder = scope.placeholder;

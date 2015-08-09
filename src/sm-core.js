@@ -55,6 +55,27 @@
           })( linkings[ evt ], evt );
         }
       },
+      linkSettings: function(scope, element, attributes, module, settingsAttribute)
+      {
+        var settings = attributes[ settingsAttribute || 'settings' ];
+      
+        if ( settings )
+        {
+          var initialized = false;
+
+          scope.$watch( settings, function( updated )
+          {
+            if ( initialized )
+            {
+              angular.forEach( updated, function(value, key)
+              {
+                element[ module ]( 'settings', key, value );
+              });
+            }
+            initialized = true;
+          });
+        }
+      },
       createBind: function(attribute, module)
       {
         var scope = {};
@@ -65,6 +86,7 @@
           scope: scope,
           link: function(scope, element, attributes) 
           {
+            SemanticUI.linkSettings( scope, element, attributes, module, attribute );
             SemanticUI.initBind( scope, attribute, element, module );
           }
         };

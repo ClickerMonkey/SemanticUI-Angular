@@ -148,7 +148,7 @@
         $scope.updateHashMap( $scope.items );
 
       },
-      link: function(scope, element, attrs) 
+      link: function(scope, element, attributes) 
       {
         var applyValue = function( value )
         {
@@ -182,6 +182,9 @@
           var settings = scope.settings || {};
           var ignoreChange = true;
 
+          SemanticUI.linkSettings( scope, element, attributes, 'dropdown' );
+
+          // Returns the model on the scope, converting it to an array if it's not one.
           var modelArray = function() {
             if ( !(scope.model instanceof Array) ) {
               scope.model = scope.model ? [ scope.model ] : [];

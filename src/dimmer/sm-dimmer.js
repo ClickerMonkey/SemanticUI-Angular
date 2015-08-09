@@ -49,23 +49,29 @@
       {
         var settings = scope.settings || {};
 
-        var visibleWatcher = SemanticUI.watcher( scope, 'visible', 
-          function(updated) {
-            element.dimmer( updated ? 'show' : 'hide' );
-          }
-        );
+        SemanticUI.linkSettings( scope, element, attributes, 'dimmer' );
 
-        SemanticUI.onEvent( settings, 'onShow', 
-          function(value) {
-            visibleWatcher.set( true );
-          }
-        );
+        // If the visible attribute is specified, listen to onHide and update modal when variable changes.
+        if ( attributes.visible )
+        {
+          var visibleWatcher = SemanticUI.watcher( scope, 'visible', 
+            function(updated) {
+              element.dimmer( updated ? 'show' : 'hide' );
+            }
+          );
 
-        SemanticUI.onEvent( settings, 'onHide', 
-          function(value) {
-            visibleWatcher.set( false );
-          }
-        );
+          SemanticUI.onEvent( settings, 'onShow', 
+            function(value) {
+              visibleWatcher.set( true );
+            }
+          );
+
+          SemanticUI.onEvent( settings, 'onHide', 
+            function(value) {
+              visibleWatcher.set( false );
+            }
+          );
+        }
 
         SemanticUI.linkEvents( scope, settings, $.fn.dimmer.settings, {
           onShow:   'onShow',

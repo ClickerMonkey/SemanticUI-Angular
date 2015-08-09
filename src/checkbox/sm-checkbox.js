@@ -67,11 +67,13 @@
         '</div>'
       ].join('\n'),
 
-      link: function(scope, element, attrs) 
+      link: function(scope, element, attributes) 
       {
         element.ready(function()
         {
           var settings = scope.settings || {};
+
+          SemanticUI.linkSettings( scope, element, attributes, 'checkbox' );
 
           var checkedValue = function() {
             return angular.isDefined( scope.checkedValue ) ? scope.checkedValue : true;
@@ -83,18 +85,33 @@
             return angular.isDefined( scope.indeterminateValue ) ? scope.indeterminateValue : void 0;
           };
 
+          if ( attributes.enabled )
+          {
+            var enabledWatcher = SemanticUI.watcher( scope, 'enabled',
+              function(updated) {
+                if ( angular.isDefined( updated ) ) {
+                  element.checkbox( updated ? 'set enabled' : 'set disabled' ); 
+                }
+              }
+            );
+
+            SemanticUI.onEvent( settings, 'onEnable', 
+              function(value) {
+                enabledWatcher.set( true );
+              }
+            );
+
+            SemanticUI.onEvent( settings, 'onDisable', 
+              function(value) {
+                enabledWatcher.set( false );
+              }
+            );
+          }
+
           var modelWatcher = SemanticUI.watcher( scope, 'model', 
             function(updated) {
               if ( angular.isDefined( updated ) ) {
                 element.checkbox( updated ? 'set checked' : 'set unchecked' );
-              }
-            }
-          );
-
-          var enabledWatcher = SemanticUI.watcher( scope, 'enabled',
-            function(updated) {
-              if ( angular.isDefined( updated ) ) {
-                element.checkbox( updated ? 'set enabled' : 'set disabled' ); 
               }
             }
           );
@@ -114,18 +131,6 @@
           SemanticUI.onEvent( settings, 'onIndeterminate', 
             function() {
               modelWatcher.set( indeterminateValue() );
-            }
-          );
-
-          SemanticUI.onEvent( settings, 'onEnable', 
-            function(value) {
-              enabledWatcher.set( true );
-            }
-          );
-
-          SemanticUI.onEvent( settings, 'onDisable', 
-            function(value) {
-              enabledWatcher.set( false );
             }
           );
 

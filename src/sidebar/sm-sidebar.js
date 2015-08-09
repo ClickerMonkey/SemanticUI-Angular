@@ -53,23 +53,28 @@
       {
         var settings = scope.settings || {};
 
-        var visibleWatcher = SemanticUI.watcher( scope, 'visible', 
-          function(updated) {
-            element.sidebar( updated ? 'show' : 'hide' );
-          }
-        );
+        SemanticUI.linkSettings( scope, element, attributes, 'sidebar' );
 
-        SemanticUI.onEvent( settings, 'onHide', 
-          function() {
-            visibleWatcher.set( false );
-          }
-        );
+        if ( attributes.visble )
+        {
+          var visibleWatcher = SemanticUI.watcher( scope, 'visible', 
+            function(updated) {
+              element.sidebar( updated ? 'show' : 'hide' );
+            }
+          );
 
-        SemanticUI.onEvent( settings, 'onShow', 
-          function() {
-            visibleWatcher.set( true );
-          }
-        );
+          SemanticUI.onEvent( settings, 'onHide', 
+            function() {
+              visibleWatcher.set( false );
+            }
+          );
+
+          SemanticUI.onEvent( settings, 'onShow', 
+            function() {
+              visibleWatcher.set( true );
+            }
+          );
+        }
 
         SemanticUI.linkEvents( scope, settings, $.fn.sidebar.settings, {
           onVisible: 'onVisible',

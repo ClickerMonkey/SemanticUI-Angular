@@ -55,12 +55,14 @@
 
       template: '<div class="ui modal" ng-transclude></div>',
 
-      link: function(scope, element, attrs)
+      link: function(scope, element, attributes)
       {
         var settings = scope.settings || {};
 
+        SemanticUI.linkSettings( scope, element, attributes, 'modal' );
+
         // If the visible attribute is specified, listen to onHide and update modal when variable changes.
-        if ( attrs.visible )
+        if ( attributes.visible )
         {
           var visibleWatcher = SemanticUI.watcher( scope, 'visible', 
             function(updated) {
