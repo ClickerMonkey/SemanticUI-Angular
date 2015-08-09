@@ -7,12 +7,15 @@
   function SemanticTransition(SemanticUI)
   {
     return {
+
       restrict: 'A',
+
       scope: {
         smTransition: '@',
         smTransitionEvents: '@',
         smTransitionOther: '@'
       },
+
       link: function(scope, element, attributes)
       {
         scope.smTransitionEvents = scope.smTransitionEvents || 'click';
@@ -23,6 +26,7 @@
         });
       }
     };
+    
   }]);
 
 })( angular.module('semantic-ui') );

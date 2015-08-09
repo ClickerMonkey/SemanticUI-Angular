@@ -32,8 +32,6 @@
 
       restrict: 'E',
 
-      required: ['model', 'label'],
-
       replace: true,
 
       transclude: true,

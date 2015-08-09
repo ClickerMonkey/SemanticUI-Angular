@@ -28,8 +28,6 @@
 
       restrict: 'E',
 
-      required: ['value', 'label', 'name', 'model'],
-
       replace: true,
 
       transclude: true,

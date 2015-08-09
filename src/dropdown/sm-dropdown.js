@@ -45,8 +45,6 @@
 
       restrict: 'E',
 
-      required: ['model', 'items', 'label', 'value'],
-
       replace: true,
 
       transclude: true,

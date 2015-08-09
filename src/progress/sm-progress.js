@@ -31,7 +31,7 @@
 
       scope: {
         /* Required */
-        value: '=',
+        model: '=',
         /* Optional */
         showPercent: '@',
         onInit: '=',
@@ -45,8 +45,8 @@
 
       template: [
         '<div class="ui progress">',
-        '  <div class="bar" style="transition-duration: 300ms; -webkit-transition-duration: 300ms; width: {{ value }}%;">',
-        '    <div class="progress" ng-if="showPercent">{{ value }}%</div>',
+        '  <div class="bar" style="transition-duration: 300ms; -webkit-transition-duration: 300ms; width: {{ model }}%;">',
+        '    <div class="progress" ng-if="showPercent">{{ model }}%</div>',
         '  </div>',
         '  <div class="label" ng-transclude></div>',
         '</div>'
