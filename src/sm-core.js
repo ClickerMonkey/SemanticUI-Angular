@@ -145,7 +145,7 @@
           })
         }
       },
-      watcher: function(scope, expression, func, context) 
+      watcher: function(scope, expression, func, context, force) 
       {
         var ignoreUpdate = false;
 
@@ -162,7 +162,7 @@
         return {
           set: function(value)
           {
-            if ( scope[ expression ] != value )
+            if ( scope[ expression ] != value || force )
             {
               scope.$evalAsync(function()
               {
@@ -170,6 +170,13 @@
                 ignoreUpdate = true;
               });
             }
+          },
+          update: function()
+          {
+            scope.$evalAsync(function()
+            {
+              ignoreUpdate = true;
+            });
           }
         }
       }

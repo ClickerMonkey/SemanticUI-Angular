@@ -45,6 +45,8 @@
 
       restrict: 'E',
 
+      required: ['model', 'items', 'label', 'value'],
+
       replace: true,
 
       transclude: true,
@@ -59,6 +61,7 @@
         settings: '=',
         defaultText: '=',
         onInit: '=',
+        emptyValue: '=',
         /* Events */
         onChange: '=',
         onAdd: '=',
@@ -80,75 +83,73 @@
 
       controller: function($scope) 
       {
+        var hashMap = {};
+
         // Returns the value to be placed in the data-value attribute. If the computed value has a $$hashKey,
         // then return the hashKey. This enables the exact instance of the item to be set to the model.
         $scope.getValue = function(item)
         {
           // Computes the value given the expression in the 'value' attribute
-          var value = $scope.value({item: item});
+          return $scope.getKey ( $scope.value({item: item}) );
+        };
 
+        $scope.getKey = function(value)
+        {
           return (value ? value.$$hashKey || value : value) + '';
+        };
+
+        $scope.isEmpty = function()
+        {
+          return !$scope.model || $scope.model.length === 0;
+        };
+
+        $scope.translateValue = function(value)
+        {
+          var translated = $scope.getKey( value );
+          var matching = $scope.findMatchingItem( translated );
+
+          if ( angular.isDefined( matching ) )
+          {
+            return $scope.getValue( matching );
+          }
         };
 
         // Determines whether this dropdown should currently display the default text.
         $scope.hasDefault = function() 
         {
-          return ( $scope.defaultText && !$scope.findMatchingItem( $scope.model ) );
+          return ( $scope.defaultText && $scope.isEmpty() );
         }; 
 
         // Gets the current text for the drop down. If the current model has a value which is found
         // in the items, the appropriate item's label is displayed. Otherwise return the default text.
         $scope.getText = function() 
         {
-          var selected = $scope.findMatchingItem( $scope.model );
-
-          if ( selected ) 
-          {
-            return $scope.label({item: selected});
-          }
-
-          return $scope.defaultText;
+          return ( $scope.isEmpty() ? $scope.defaultText : '' );
         };
 
         // Finds an item instance that has the exact same value as the given value.
         $scope.findMatchingItem = function(value) 
         {
-          var matching = null;
-
-          angular.forEach( $scope.items, function(item) 
-          {
-            var itemValue = $scope.value({item: item});
-
-            if ( itemValue === value ) 
-            {
-              matching = item;
-            }
-          });
-          return matching;
+          return hashMap[ value ];
         };
-      },
-      link: function(scope, element, attrs) 
-      {
-        var hashMap = {};
 
-        var updateHashMap = function( items )
+        // Updates the hash map providing a mapping from values to items.
+        $scope.updateHashMap = function( items )
         {
           hashMap = {};
 
           angular.forEach( items, function(item)
           {
-            if ( item.$$hashKey )
-            {
-              hashMap[ item.$$hashKey ] = item;
-            }
+            hashMap[ $scope.getValue( item ) ] = item;
           });
         };
 
-        var unhash = function( x )
-        {
-          return x in hashMap ? hashMap[ x ] : x;
-        };
+        // Update the hashmap now
+        $scope.updateHashMap( $scope.items );
 
+      },
+      link: function(scope, element, attrs) 
+      {
         var applyValue = function( value )
         {
           if ( element.dropdown('is multiple') )
@@ -159,11 +160,11 @@
 
               for (var i = 0; i < value.length; i++)
               {
-                var matching = scope.findMatchingItem( value[ i ] );
+                var translated = scope.translateValue( value[ i ] );
 
-                if ( matching !== null )
+                if ( angular.isDefined( translated ) )
                 {
-                  translatedValue.push( scope.getValue( matching ) );
+                  translatedValue.push( translated );
                 }
               }
 
@@ -172,32 +173,46 @@
           }
           else
           {
-            var matching = scope.findMatchingItem( value );
-
-            if ( matching !== null )
-            {
-              element.dropdown( 'set selected', scope.getValue( matching ) );
-            }
+            element.dropdown( 'set selected', scope.translateValue( value ) );
           }
         };
 
         element.ready(function()
         {
           var settings = scope.settings || {};
+          var ignoreChange = true;
+
+          var modelArray = function() {
+            if ( !(scope.model instanceof Array) ) {
+              scope.model = scope.model ? [ scope.model ] : [];
+            }
+            return scope.model;
+          };
 
           // When the model changes, set the value on the drop down
           var modelWatcher = SemanticUI.watcher( scope, 'model', 
             function(updated) {
               applyValue( updated );
             }
-          );
+          , null, true );
 
           // Inject an onChange function into the settings which sets the model value
           // and causes the scope to be updated.
           SemanticUI.onEvent( settings, 'onChange', 
             function(value) {
+              if ( ignoreChange ) {
+                return;
+              }
               if ( !element.dropdown('is multiple') ) {
-                modelWatcher.set( unhash( value ) );
+                var mapped = scope.findMatchingItem( value );
+                if (angular.isDefined(mapped)) {
+                  var mappedValue = scope.value({item: mapped});
+                  modelWatcher.set( mappedValue );
+                } else if ( element.dropdown('setting', 'allowAdditions') ) {
+                  modelWatcher.set( value );
+                } else {
+                  modelWatcher.set( scope.emptyValue );
+                }
               }
             }
           );
@@ -205,12 +220,20 @@
           // When a new item is selected for multiple selection dropdowns, add it to the model.
           SemanticUI.onEvent( settings, 'onAdd',
             function(value) {
-              var translated = unhash( value );
-              var indexOf = $.inArray( translated, scope.model );
-              if ( indexOf === -1 ) {
-                var copy = $.extend( [], scope.model );
-                copy.push( translated );
-                modelWatcher.set( copy );
+              if ( ignoreChange ) {
+                return;
+              }
+              var mapped = scope.findMatchingItem( value );
+              if (angular.isDefined(mapped)) {
+                var mappedValue = scope.value({item: mapped});
+                var indexOf = $.inArray( mappedValue, modelArray() );
+                if ( indexOf === -1 ) {
+                  scope.model.push( mappedValue );
+                  modelWatcher.update();
+                }
+              } else if ( element.dropdown('setting', 'allowAdditions') ) {
+                scope.model.push( value );
+                modelWatcher.update();
               }
             }
           );
@@ -218,12 +241,23 @@
           // When an item is deselected for multiple selection dropdowns, remove it from the model.
           SemanticUI.onEvent( settings, 'onRemove',
             function(value) {
-              var translated = unhash( value );
-              var indexOf = $.inArray( translated, scope.model );
-              if ( indexOf !== -1 ) {
-                var copy = $.extend( [], scope.model );
-                copy.splice( indexOf, 1 );
-                modelWatcher.set( copy );
+              if ( ignoreChange ) {
+                return;
+              }
+              var mapped = scope.findMatchingItem( value );
+              if (angular.isDefined(mapped)) {
+                var mappedValue = scope.value({item: mapped});
+                var indexOf = $.inArray( mappedValue, modelArray() );
+                if ( indexOf !== -1 ) {
+                  scope.model.splice( indexOf, 1 );
+                  modelWatcher.update();
+                } 
+              } else {
+                var indexOf = $.inArray( value, modelArray() );
+                if ( indexOf !== -1 ) {
+                  scope.model.splice( indexOf, 1 );
+                  modelWatcher.update();
+                }
               }
             }
           );
@@ -242,7 +276,7 @@
           // When items changes, rebuild the hashMap & reapply the values.
           scope.$watch( 'items', function( updated ) 
           {
-            updateHashMap( scope.items );
+            scope.updateHashMap( scope.items );
             applyValue( scope.model );
 
           }, true );
@@ -250,14 +284,14 @@
           // Initialize the element with the given settings.
           element.dropdown( settings );
 
-          // Rebuild the hashmap now
-          updateHashMap( scope.items );
-
           // Apply current value
           applyValue( scope.model );
 
           // Save defaults
           element.dropdown( 'save defaults' );
+
+          // Stop ignoring changes!
+          ignoreChange = false;
 
           // Notify initialized callback.
           if ( angular.isFunction( scope.onInit ) ) 

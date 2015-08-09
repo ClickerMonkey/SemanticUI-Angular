@@ -59,17 +59,21 @@
       {
         var settings = scope.settings || {};
 
-        var visibleWatcher = SemanticUI.watcher( scope, 'visible', 
-          function(updated) {
-            element.modal( updated ? 'show' : 'hide' );
-          }
-        );
+        // If the visible attribute is specified, listen to onHide and update modal when variable changes.
+        if ( attrs.visible )
+        {
+          var visibleWatcher = SemanticUI.watcher( scope, 'visible', 
+            function(updated) {
+              element.modal( updated ? 'show' : 'hide' );
+            }
+          );
 
-        SemanticUI.onEvent( settings, 'onHide', 
-          function() {
-            visibleWatcher.set( false );
-          }
-        );
+          SemanticUI.onEvent( settings, 'onHide', 
+            function() {
+              visibleWatcher.set( false );
+            }
+          );
+        }
 
         SemanticUI.linkEvents( scope, settings, $.fn.modal.settings, {
           onShow:    'onShow',
