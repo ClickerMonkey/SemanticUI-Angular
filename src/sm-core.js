@@ -6,6 +6,24 @@
   {
     var SemanticUI = 
     {
+      triggerChange: function(scope, variable, element, initialized)
+      {
+        scope.$watch( variable, function(updated)
+        {
+          // Don't trigger the change event if the element hasn't been initialized.
+          if ( initialized )
+          {
+            // Trigger the change event during a digest cycle so any other 
+            // variables that are changing this current digest cycle can finish.
+            scope.$evalAsync(function()
+            {
+              element.trigger('change');
+            });
+          }
+
+          initialized = true;
+        })
+      },
       bindAttribute: function(scope, variable, element, attribute)
       {
         scope.$watch( variable, function(updated)
@@ -13,9 +31,9 @@
           element.attr( attribute, updated );
         });
       },
-      onEvent: function(settings, evt, func, undefined)
+      onEvent: function(settings, evt, func)
       {
-        settings[ evt ] = (function(existing) 
+        settings[ evt ] = (function(existing, undefined) 
         {
           return function EventHandler() 
           {
@@ -46,7 +64,7 @@
               {
                 return scopeValue.apply( this, arguments );
               }
-              else
+              else if ( angular.isFunction( defaults[ evt ] ) )
               {
                 return defaults[ evt ].apply( this, arguments );
               }
@@ -55,64 +73,68 @@
           })( linkings[ evt ], evt );
         }
       },
-      linkSettings: function(scope, element, attributes, module, settingsAttribute)
+      linkSettings: function(scope, element, attributes, module, initialized, settingsAttribute)
       {
-        var settings = attributes[ settingsAttribute || 'settings' ];
+        var settings = settingsAttribute || 'settings';
       
-        if ( settings )
+        if ( settings in attributes )
         {
-          var initialized = false;
-
           scope.$watch( settings, function( updated )
           {
             if ( initialized )
             {
               angular.forEach( updated, function(value, key)
               {
-                element[ module ]( 'settings', key, value );
+                element[ module ]( 'setting', key, value );
               });
             }
+
             initialized = true;
-          });
+
+          }, true );
         }
       },
       createBind: function(attribute, module)
       {
-        var scope = {};
-        scope[ attribute ] = '=';
-
         return {
+
           restrict: 'A',
-          scope: scope,
+
           link: function(scope, element, attributes) 
           {
-            SemanticUI.linkSettings( scope, element, attributes, module, attribute );
-            SemanticUI.initBind( scope, attribute, element, module );
+            SemanticUI.linkSettings( scope, element, attributes, module, false, attribute );
+            SemanticUI.initBind( scope, element, attributes, attribute, module );
           }
         };
       },
-      initBind: function(scope, attribute, element, module)
+      initBind: function(scope, element, attributes, attribute, module)
       {
         element.ready(function()
         {
-          element[ module ]( scope[ attribute ] );
+          var settings = {};
+          var input = attributes[ attribute ];
+
+          if ( input )
+          {
+            settings = scope.$eval( input );
+          }
+
+          element[ module ]( settings );
         });
       },
       createBehavior: function(attribute, module, method)
       {
-        var scope = {};
-        scope[ attribute ] = '=';
-
         return {
+
           restrict: 'A',
-          scope: scope,
+
           link: function(scope, element, attributes) 
           {
-            SemanticUI.initBehavior( scope, attribute, element, module, method );
+            SemanticUI.initBehavior( scope, attributes, attribute, element, module, method );
           }
         };
       },
-      initBehavior: function(scope, attribute, element, module, method)
+      initBehavior: function(scope, attributes, attribute, element, module, method)
       {
         // Default settings on the attribute.
         var settings = {
@@ -121,23 +143,6 @@
           enabled: true,
           value: undefined
         };
-
-        // Grab the value the user passed in.
-        var input = scope[ attribute ];
-        
-        // If the attribute value is a string, take it as the selector
-        if ( angular.isString( input ) ) 
-        {
-          settings.$ = input;
-        }
-        // If the attribute value is an object, overwrite the defaults.
-        else if ( angular.isObject( input ) ) 
-        {
-          if ( !angular.isString( input.evt ) ) input.evt = settings.evt;
-          if ( !angular.isDefined( input.enabled ) ) input.enabled = settings.enabled;
-
-          settings = input;
-        }
 
         var onEvent = function() 
         {
@@ -149,10 +154,32 @@
           }
         };
 
-        element.ready(function()
+        var previousEvent = false;
+
+        scope.$watch( attributes[ attribute ], function(input)
         {
-          element.on( settings.evt, onEvent );
-        });
+          // If the attribute value is a string, take it as the selector
+          if ( angular.isString( input ) ) 
+          {
+            settings.$ = input;
+          }
+          // If the attribute value is an object, overwrite the defaults.
+          else if ( angular.isObject( input ) ) 
+          {
+            if ( !angular.isString( input.evt ) ) input.evt = settings.evt;
+            if ( !angular.isDefined( input.enabled ) ) input.enabled = settings.enabled;
+
+            settings = input;
+          }
+
+          if ( previousEvent )
+          {
+            element.off( previousEvent, onEvent );
+          }
+
+          element.on( previousEvent = settings.evt, onEvent );
+
+        }, true );
       },
       async: function(scope, func)
       {

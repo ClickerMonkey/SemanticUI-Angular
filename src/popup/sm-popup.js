@@ -39,6 +39,7 @@
         smPopupPosition: '@',
         smPopupSettings: '=',
         smPopupOnInit: '=',
+        smPopupVariation: '@',
         /* Events */
         smPopupOnCreate: '=',
         smPopupOnRemove: '=',
@@ -51,9 +52,12 @@
       {
         var settings = scope.smPopupSettings || {};
 
+        SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupSettings' );
+
         SemanticUI.bindAttribute( scope, 'smPopup', element, 'data-content' );
         SemanticUI.bindAttribute( scope, 'smPopupTitle', element, 'data-title' );
         SemanticUI.bindAttribute( scope, 'smPopupPosition', element, 'data-position' );
+        SemanticUI.bindAttribute( scope, 'smPopupVariation', element, 'data-variation' );
 
         SemanticUI.linkEvents( scope, settings, {
           onCreate:  'smPopupOnCreate',
@@ -95,6 +99,8 @@
       link: function(scope, element, attributes) 
       {
         var settings = scope.smPopupInline || {};
+
+        SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupInline' );
 
         SemanticUI.linkEvents( scope, settings, {
           onCreate:  'smPopupInlineOnCreate',
@@ -138,6 +144,8 @@
       {
         var settings = scope.smPopupDisplaySettings || {};
 
+        SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupDisplaySettings' );
+
         SemanticUI.linkEvents( scope, settings, $.fn.popup.settings, {
           onCreate:  'smPopupDisplayOnCreate',
           onRemove:  'smPopupDisplayOnRemove',
@@ -169,7 +177,7 @@
       scope: {
         name: '@'
       },
-      template: '<div class="ui special popup" data-popup-named="{{ name }}" ng-transclude></div>'
+      template: '<div class="ui popup" data-popup-named="{{ name }}" ng-transclude></div>'
     };
   });
 

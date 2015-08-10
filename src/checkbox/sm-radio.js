@@ -63,7 +63,9 @@
         {
           var settings = scope.settings || {};
 
-          SemanticUI.linkSettings( scope, element, attributes, 'checkbox' );
+          SemanticUI.linkSettings( scope, element, attributes, 'checkbox', true );
+
+          SemanticUI.triggerChange( scope, 'model', element, true );
 
           if ( attributes.enabled )
           {

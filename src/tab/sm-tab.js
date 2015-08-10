@@ -61,7 +61,7 @@
           var settings = scope.settings || {};
           var elements = element.children('.item');
 
-          SemanticUI.linkSettings( scope, elements, attributes, 'tab' );
+          SemanticUI.linkSettings( scope, elements, attributes, 'tab', true );
 
           elements.tab( settings );
         });

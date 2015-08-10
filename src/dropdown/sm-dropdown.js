@@ -73,7 +73,7 @@
 
       template: [
         '<div class="ui dropdown">',
-          '<div class="text" sm-class-once="{default: hasDefault()}" sm-html-once="getText()"></div>',
+          '<div class="text" sm-class-once="{default: hasDefault()}" sm-html-once="getDefaultText()"></div>',
           '<i class="dropdown icon"></i>',
           '<sm-flat-menu></sm-flat-menu>',
         '</div>'
@@ -88,7 +88,7 @@
         $scope.getValue = function(item)
         {
           // Computes the value given the expression in the 'value' attribute
-          return $scope.getKey ( $scope.value({item: item}) );
+          return $scope.getKey( $scope.value( {item: item} ) );
         };
 
         $scope.getKey = function(value)
@@ -101,6 +101,8 @@
           return !$scope.model || $scope.model.length === 0;
         };
 
+        // Translates the value (the model, an item of the model, or a variable 
+        // created from the value function) into the key that's stored on the dropdown.
         $scope.translateValue = function(value)
         {
           var translated = $scope.getKey( value );
@@ -120,7 +122,7 @@
 
         // Gets the current text for the drop down. If the current model has a value which is found
         // in the items, the appropriate item's label is displayed. Otherwise return the default text.
-        $scope.getText = function() 
+        $scope.getDefaultText = function() 
         {
           return ( $scope.isEmpty() ? $scope.defaultText : '' );
         };
@@ -141,10 +143,6 @@
             hashMap[ $scope.getValue( item ) ] = item;
           });
         };
-
-        // Update the hashmap now
-        $scope.updateHashMap( $scope.items );
-
       },
       link: function(scope, element, attributes) 
       {
@@ -180,7 +178,9 @@
           var settings = scope.settings || {};
           var ignoreChange = true;
 
-          SemanticUI.linkSettings( scope, element, attributes, 'dropdown' );
+          SemanticUI.linkSettings( scope, element, attributes, 'dropdown', true );
+
+          SemanticUI.triggerChange( scope, 'model', element, true );
 
           // Returns the model on the scope, converting it to an array if it's not one.
           var modelArray = function() {
@@ -284,6 +284,9 @@
 
           // Initialize the element with the given settings.
           element.dropdown( settings );
+
+          // Update the hashmap with items
+          scope.updateHashMap( scope.items );
 
           // Apply current value
           applyValue( scope.model );

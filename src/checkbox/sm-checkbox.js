@@ -71,7 +71,9 @@
         {
           var settings = scope.settings || {};
 
-          SemanticUI.linkSettings( scope, element, attributes, 'checkbox' );
+          SemanticUI.linkSettings( scope, element, attributes, 'checkbox', true );
+
+          SemanticUI.triggerChange( scope, 'model', element, true );
 
           var checkedValue = function() {
             return angular.isDefined( scope.checkedValue ) ? scope.checkedValue : true;

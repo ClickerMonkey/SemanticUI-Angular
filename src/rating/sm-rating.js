@@ -52,7 +52,9 @@
         {
           var settings = scope.settings || {};
 
-          SemanticUI.linkSettings( scope, element, attributes, 'rating' );
+          SemanticUI.linkSettings( scope, element, attributes, 'rating', true );
+
+          SemanticUI.triggerChange( scope, 'model', element, true );
 
           if ( attributes.disabled )
           {

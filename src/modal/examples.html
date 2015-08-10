@@ -36,19 +36,6 @@
           ];
 
           $scope.modalTransition = $scope.transitions[ 0 ];
-
-          var initializing = true;
-
-          $scope.$watch('modalTransition', function(updated)
-          {
-            if ( !initializing ) {
-              $('.modal7')
-                .modal('setting', 'transition', updated)
-                .modal('show')
-              ;
-            }
-            initializing = false;
-          });
         })
       ;
     </script>
@@ -330,11 +317,13 @@
 
         <p>A modal can use any named ui transition.</p>
 
+        <div class="current value">{{ modalTransition }}</div>
+
         <div data-copy-to="#example7">
 
-          <sm-dropdown class="selection" model="modalTransition" items="transitions" label="item" value="item"></sm-dropdown>
+          <sm-dropdown class="selection" model="modalTransition" items="transitions" label="item" value="item" sm-modal-show="{$:'.modal7', evt:'change'}"></sm-dropdown>
 
-          <sm-modal class="modal7">
+          <sm-modal class="modal7" settings="{transition: modalTransition}">
             <div class="header">
               Profile Picture
             </div>
