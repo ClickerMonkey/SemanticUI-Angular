@@ -36,10 +36,11 @@
         smPopup: '=',
         /* Optional */
         smPopupTitle: '=',
+        smPopupHtml: '=',
         smPopupPosition: '@',
+        smPopupVariation: '@',
         smPopupSettings: '=',
         smPopupOnInit: '=',
-        smPopupVariation: '@',
         /* Events */
         smPopupOnCreate: '=',
         smPopupOnRemove: '=',
@@ -56,6 +57,7 @@
 
         SemanticUI.bindAttribute( scope, 'smPopup', element, 'data-content' );
         SemanticUI.bindAttribute( scope, 'smPopupTitle', element, 'data-title' );
+        SemanticUI.bindAttribute( scope, 'smPopupHtml', element, 'data-html' );
         SemanticUI.bindAttribute( scope, 'smPopupPosition', element, 'data-position' );
         SemanticUI.bindAttribute( scope, 'smPopupVariation', element, 'data-variation' );
 
@@ -129,6 +131,8 @@
     return {
       restrict: 'A',
       scope: {
+        /* Required */
+        smPopupDisplay: '@',
         /* Optional */
         smPopupDisplaySettings: '=',
         smPopupDisplayOnInit: '=',
