@@ -26,5 +26,8 @@ $('[data-copy-to]').each(function()
     }
   }
 
-  $( target ).text( lines.join('\n') );
+  $(function() {
+    $( target ).text( lines.join('\n') );    
+  });
+
 });

@@ -21,6 +21,15 @@
   app.directive('smProgress', ['SemanticUI',
   function SemanticProgress(SemanticUI) 
   {
+    var addText = function( scope, attributes, settings, attribute, property )
+    {
+      if ( angular.isDefined( attributes[ attribute ] ) )
+      {
+        settings.text = settings.text || {};
+        settings.text[ property ] = scope[ attribute ];
+      }
+    };
+
     return {
 
       restrict: 'E',
@@ -32,9 +41,15 @@
       scope: {
         /* Required */
         model: '=',
+        total: '=',
         /* Optional */
-        showPercent: '@',
+        duration: '@',
+        label: '@',
         onInit: '=',
+        activeText: '@',
+        successText: '@',
+        errorText: '@',
+        warningText: '@',
         /* Events */
         onChange: '=',
         onSuccess: '=',
@@ -45,8 +60,8 @@
 
       template: [
         '<div class="ui progress">',
-        '  <div class="bar" style="transition-duration: 300ms; -webkit-transition-duration: 300ms; width: {{ model }}%;">',
-        '    <div class="progress" ng-if="showPercent">{{ model }}%</div>',
+        '  <div class="bar">',
+        '    <div class="progress" ng-show="label"></div>',
         '  </div>',
         '  <div class="label" ng-transclude></div>',
         '</div>'
@@ -66,7 +81,63 @@
           onWarning:  'onWarning'
         });
 
-        if ( angular.isFunction( scope.onInit ) ) {
+        if ( !angular.isDefined( settings.showActivity ) )
+        {
+          settings.showActivity = false;
+        }
+
+        if ( angular.isDefined( attributes.label ) )
+        {
+          settings.label = scope.label;
+        }
+
+        if ( angular.isDefined( attributes.total ) )
+        {
+          settings.total = scope.total;
+        }
+        else
+        {
+          settings.total = 100;
+        }
+
+        if ( angular.isDefined( attributes.model ) )
+        {
+          settings.value = scope.model;
+        }
+
+        addText( scope, attributes, settings, 'activeText', 'active' );
+        addText( scope, attributes, settings, 'successText', 'success' );
+        addText( scope, attributes, settings, 'errorText', 'error' );
+        addText( scope, attributes, settings, 'warningText', 'warning' );
+
+        element.progress( settings );
+
+        SemanticUI.watcher( scope, 'model', function(value)
+        {
+          var total = element.progress( 'get total' ) || 100;
+
+          element.progress( 'set percent', value * 100 / total );
+          element.progress( 'set value', value );
+        });
+
+        if ( angular.isDefined( attributes.duration ) )
+        {
+          SemanticUI.watcher( scope, 'duration', function(duration)
+          {
+            element.progress( 'set duration', duration );
+          });
+        }
+
+        if ( angular.isDefined( attributes.total ) )
+        {
+          SemanticUI.watcher( scope, 'total', function(total)
+          {
+            element.progress( 'set total', total );
+          });
+        }
+
+        if ( angular.isFunction( scope.onInit ) ) 
+        {
           scope.onInit( element );
         }
       }
