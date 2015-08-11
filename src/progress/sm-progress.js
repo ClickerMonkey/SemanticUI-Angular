@@ -8,6 +8,7 @@
   }]);
 
   var BEHAVIORS = {
+    'smProgressIncrement': 'increment'
   };
 
   angular.forEach( BEHAVIORS, function(method, directive)
@@ -41,15 +42,15 @@
       scope: {
         /* Required */
         model: '=',
-        total: '=',
         /* Optional */
-        duration: '@',
+        total: '=',
         label: '@',
-        onInit: '=',
         activeText: '@',
         successText: '@',
         errorText: '@',
         warningText: '@',
+        duration: '@',
+        onInit: '=',
         /* Events */
         onChange: '=',
         onSuccess: '=',
