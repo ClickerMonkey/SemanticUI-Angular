@@ -8,7 +8,7 @@
   }]);
 
   var BEHAVIORS = {
-    smRatingSetRating:  'set rating',
+    smRatingSet:        'set rating',
     smRatingDisable:    'disable',
     smRatingEnable:     'enable',
     smRatingClear:      'clear rating'
@@ -82,6 +82,11 @@
           });
 
           element.rating( settings );
+
+          if ( scope.disabled ) 
+          {
+            element.rating( 'disable' );
+          }
 
           if ( angular.isFunction( scope.onInit ) ) {
             scope.onInit( element );
