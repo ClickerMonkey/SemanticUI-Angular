@@ -25,6 +25,13 @@
       ;
     </script>
 
+    <style>
+    .reply-date {
+      color: rgba(0,0,0,.4);
+      font-size: .875em;
+    }
+    </style>
+
   </head>
   <body ng-app="semantic-ui" ng-controller="MainController">
 
@@ -41,11 +48,34 @@
 
             <sm-checkbox model="reply" label="Replies?" enabled="!minimal"></sm-checkbox><br>
             <sm-checkbox model="minimal" label="Minimal?" enabled="reply"></sm-checkbox><br>
+            <sm-checkbox model="collapsible" label="Collapsible?" enabled="reply"></sm-checkbox><br>
 
             <sm-comments comments="comments" author="comment.author" avatar="comment.avatar" 
               date="comment.date" content="comment.content"
-              reply="reply" reply-text="Reply" replies="comment.replies"
-              class="{{ minimal ? 'minimal' : ''}}"></sm-comments>
+              reply="reply" replies="comment.replies" on-reply="replyTo(comment)"
+              minimal="minimal" collapsible="collapsible"
+              ng-class="{threaded: reply, minimal: minimal}">
+            </sm-comments>
+            <div class="ui comments">
+              <div ng-if="replyingTo" class="ui segment">
+                
+                <a href ng-click="cancelReply()" class="ui top right red attached small label">cancel</a>
+
+                Replying to <b>{{ replyingTo.author }}'s</b> comment - <span sm-time-ago="replyingTo.date" class="reply-date"></span>
+                
+                <div class="ui secondary segment">
+                  <p>{{ replyingTo.content }}</p>
+                </div>
+              </div>
+              <form class="ui reply form">
+                <div class="field">
+                  <textarea ng-model="newReply"></textarea>
+                </div>
+                <div class="ui blue labeled submit icon button" ng-click="addReply()">
+                  <i class="icon edit"></i> {{ replyingTo ? 'Add Reply' : 'Add Comment' }}
+                </div>
+              </form>
+            </div>
 
           </div>
           <script>
@@ -54,6 +84,9 @@
               {
                 $scope.reply = true;
                 $scope.minimal = false;
+                $scope.collapsible = false;
+                $scope.replyingTo = null;
+                $scope.newReply = '';
 
                 $scope.comments = [
                   { 
@@ -97,6 +130,44 @@
                     content: 'Dude, this is awesome. Thanks so much'
                   }
                 ];
+
+                $scope.replyTo = function(comment)
+                {
+                  $scope.replyingTo = comment;
+                };
+
+                $scope.cancelReply = function()
+                {
+                  $scope.replyingTo = null;
+                };
+
+                $scope.addReply = function()
+                {
+                  if ( !$scope.newReply )
+                  {
+                    return alert('You must enter a reply!');
+                  }
+
+                  var comment = {
+                    author: 'You',
+                    avatar: 'http://semantic-ui.com/images/avatar/small/christian.jpg',
+                    date: new Date(),
+                    content: $scope.newReply
+                  };
+
+                  if ( $scope.replyingTo )
+                  {
+                    $scope.replyingTo.replies = $scope.replyingTo.replies || [];
+                    $scope.replyingTo.replies.push( comment );
+                    $scope.replyingTo = null;
+                  }
+                  else
+                  {
+                    $scope.comments.push( comment );
+                  }
+
+                  $scope.newReply = '';
+                };
               })
             ;
           </script>
