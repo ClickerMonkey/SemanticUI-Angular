@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/semantic-ui/2.0.7/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/google/code-prettify/master/src/prettify.css">
+    <link rel="stylesheet" type="text/css" href="../examples.css">
+
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/semantic-ui/2.0.7/semantic.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+
+    <script src="../sm-core.js"></script>
+    <script src="../sm-addons.js"></script>
+    <script src="../checkbox/sm-checkbox.js"></script>
+    <script src="sm-comment.js"></script>
+
+    <script>
+      angular.module('semantic-ui')
+        .controller('MainController', function($scope) 
+        {
+
+        })
+      ;
+    </script>
+
+  </head>
+  <body ng-app="semantic-ui" ng-controller="MainController">
+
+    <div class="ui container">
+    
+      <div class="ui segment">
+
+        <h3 class="ui header">Comments</h3>
+
+        <p>A threadable comment component.</p>
+
+        <div data-copy-to="#example0">
+          <div ng-controller="CommentController">
+
+            <sm-checkbox model="reply" label="Replies?" enabled="!minimal"></sm-checkbox><br>
+            <sm-checkbox model="minimal" label="Minimal?" enabled="reply"></sm-checkbox><br>
+
+            <sm-comments comments="comments" author="comment.author" avatar="comment.avatar" 
+              date="comment.date" content="comment.content"
+              reply="reply" reply-text="Reply" replies="comment.replies"
+              class="{{ minimal ? 'minimal' : ''}}"></sm-comments>
+
+          </div>
+          <script>
+            angular.module('semantic-ui')
+              .controller('CommentController', function($scope) 
+              {
+                $scope.reply = true;
+                $scope.minimal = false;
+
+                $scope.comments = [
+                  { 
+                    author: 'Matt', 
+                    avatar: 'http://semantic-ui.com/images/avatar/small/matt.jpg', 
+                    date: 1439613082975,
+                    content: 'How artistic!'
+                  },
+                  {
+                    author: 'Elliot Fu',
+                    avatar: 'http://semantic-ui.com/images/avatar/small/elliot.jpg',
+                    date: 1439612082975,
+                    content: '<p>This has been very useful for my research. Thanks as well!</p>',
+                    replies: [
+                      {
+                        author: 'Jenny Hess',
+                        avatar: 'http://semantic-ui.com/images/avatar/small/jenny.jpg',
+                        date: 1439602082975,
+                        content: 'Elliot you are always so right :)'
+                      },
+                      {
+                        author: 'Philip Diffenderfer',
+                        avatar: 'http://semantic-ui.com/images/avatar/small/steve.jpg',
+                        date: 1439502082975,
+                        content: 'Most useful comment of the year award goes to...',
+                        replies: [
+                          {
+                            author: 'Elliot Fu',
+                            avatar: 'http://semantic-ui.com/images/avatar/small/elliot.jpg',
+                            date: 1430502082975,
+                            content: 'Why don\'t you have anything constructive to say?',
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    author: 'Joe Henderson',
+                    avatar: 'http://semantic-ui.com/images/avatar/small/joe.jpg',
+                    date: 1439562082975,
+                    content: 'Dude, this is awesome. Thanks so much'
+                  }
+                ];
+              })
+            ;
+          </script>
+        </div>
+
+        <pre class="ui segment prettyprint lang-html" id="example0"></pre>
+
+      </div>
+      
+    </div>
+
+    <script src="../examples.js"></script>
+
+  </body>
+</html>

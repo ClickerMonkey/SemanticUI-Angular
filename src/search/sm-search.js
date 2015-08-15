@@ -42,7 +42,7 @@
         icon: '@',
         placeholder: '@',
         local: '=',
-        remove: '@',
+        remote: '@',
         settings: '=',
         onInit: '=',
         /* Events */
@@ -56,7 +56,7 @@
       template: [
         '<div class="ui search">',
         '  <div class="ui icon input">',
-        '    <input class="prompt" type="text" placeholder="{{ placeholder }}" ng-model="model">',
+        '    <input class="prompt" type="text" placeholder="{{ placeholder }}">',
         '    <i class="{{ icon }} icon"></i>',
         '  </div>',
         '  <div class="results"></div>',
@@ -76,6 +76,18 @@
 
         if ( scope.local ) settings.source = scope.local;
         if ( scope.remote ) settings.apiSettings = { url: scope.remote };
+
+        var modelWatcher = SemanticUI.watcher( scope, 'model', 
+          function(value) {
+            element.search( 'set value', value );
+          }
+        );
+
+        SemanticUI.onEvent( settings, 'onSelect', 
+          function(result, response) {
+            modelWatcher.set( result );
+          }
+        );
 
         SemanticUI.linkEvents( scope, settings, $.fn.search.settings, {
           onResultsAdd:     'onResultsAdd',
