@@ -268,6 +268,10 @@
           ];
 
           $scope.model0 = null;
+          $scope.model1 = null;
+          $scope.model2 = null;
+          $scope.model3 = null;
+          $scope.model4 = null;
         })
       ;
     </script>
@@ -297,16 +301,16 @@
 
       <div class="ui segment">
 
-        <h3 class="ui header">Star</h3>
+        <h3 class="ui header">Icon</h3>
 
-        <p>A rating can use a set of star icons.</p>
+        <p>A search can have an icon.</p>
 
         <div class="current value">
-          <input type="number" min="0" max="4" size="3" ng-model="model1">
+          {{ model1 }}
         </div>
 
         <div data-copy-to="#example1">
-          <sm-rating model="model1" total="4" type="star"></sm-rating>
+          <sm-search model="model1" remote="{{ remoteSearch }}" placeholder="Common passwords..." icon="search"></sm-search>
         </div>
 
         <pre class="ui segment prettyprint lang-html" id="example1"></pre>
@@ -314,16 +318,16 @@
       </div>
       <div class="ui segment">
 
-        <h3 class="ui header">Heart</h3>
+        <h3 class="ui header">Category</h3>
 
-        <p>A rating can use a set of heart icons.</p>
+        <p>A search can display results from remote content ordered by categories.</p>
 
         <div class="current value">
-          <input type="number" min="0" max="3" size="3" ng-model="model2">
+          {{ model2 }}
         </div>
 
         <div data-copy-to="#example2">
-          <sm-rating model="model2" total="3" type="heart"></sm-rating>
+          <sm-search model="model2" category="true" remote="{{ remoteCategories }}" placeholder="Search animals..." icon="search"></sm-search>
         </div>
 
         <pre class="ui segment prettyprint lang-html" id="example2"></pre>
@@ -331,47 +335,19 @@
       </div>
       <div class="ui segment">
 
-        <h3 class="ui header">Size</h3>
+        <h3 class="ui header">Local Search</h3>
 
-        <p>A rating can vary in size.</p>
+        <p>A search can look for results inside static local content.</p>
+
+        <div class="current value">
+          {{ model3 }}
+        </div>
 
         <div data-copy-to="#example3">
-          <sm-rating model="3" total="4" type="mini star"></sm-rating><br>
-          <sm-rating model="3" total="4" type="tiny star"></sm-rating><br>
-          <sm-rating model="3" total="4" type="small star"></sm-rating><br>
-          <sm-rating model="3" total="4" type="star"></sm-rating><br>
-          <sm-rating model="3" total="4" type="large star"></sm-rating><br>
-          <sm-rating model="3" total="4" type="huge star"></sm-rating><br>
-          <sm-rating model="3" total="4" type="massive star"></sm-rating><br>
+          <sm-search model="model3" local="localValues" placeholder="Search countries..." icon="search"></sm-search>
         </div>
 
         <pre class="ui segment prettyprint lang-html" id="example3"></pre>
-
-      </div>
-      <div class="ui segment">
-
-        <h3 class="ui header">Read-Only Ratings</h3>
-
-        <p>You can disable or enable interactive rating.</p>
-
-        <div data-copy-to="#example4">
-          <sm-rating model="4" total="5" type="star" disabled="true"></sm-rating>
-        </div>
-
-        <pre class="ui segment prettyprint lang-html" id="example4"></pre>
-
-      </div>
-      <div class="ui segment">
-
-        <h3 class="ui header">Clearing Ratings</h3>
-
-        <p>When clearable is set to <code>true</code> you can clear the rating by clicking on the current start rating..</p>
-
-        <div data-copy-to="#example5">
-          <sm-rating model="3" total="4" type="heart" settings="{clearable:true}"></sm-rating>
-        </div>
-
-        <pre class="ui segment prettyprint lang-html" id="example5"></pre>
 
       </div>
 

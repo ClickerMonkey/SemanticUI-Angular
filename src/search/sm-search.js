@@ -12,7 +12,7 @@
     smSearchCancelQuery:  'cancel query',
     smSearchSearchLocal:  'search local',
     smSearchSearchRemote: 'search remote',
-    smSearchSetValue:     'set value',
+    smSearchSet:          'set value',
     smSearchShowResults:  'show results',
     smSearchHideResults:  'hide results',
     smSearchDestroy:      'destroy'
@@ -41,11 +41,13 @@
         /* Optional */
         icon: '@',
         placeholder: '@',
+        category: '@',
         local: '=',
         remote: '@',
         settings: '=',
         onInit: '=',
         /* Events */
+        onSelect: '=',
         onResultsAdd: '=',
         onSearchQuery: '=',
         onResults: '=',
@@ -54,19 +56,14 @@
       },
 
       template: [
-        '<div class="ui search">',
-        '  <div class="ui icon input">',
+        '<div class="ui search" ng-class="{category: category}">',
+        '  <div class="ui input" ng-class="{icon: icon}">',
         '    <input class="prompt" type="text" placeholder="{{ placeholder }}">',
-        '    <i class="{{ icon }} icon"></i>',
+        '    <i ng-if="icon" class="{{ icon }} icon"></i>',
         '  </div>',
         '  <div class="results"></div>',
         '</div>'
       ].join('\n'),
-
-      controller: function($scope)
-      {
-        $scope.icon = $scope.icon || 'search';
-      },
 
       link: function(scope, element, attributes) 
       {
@@ -76,6 +73,7 @@
 
         if ( scope.local ) settings.source = scope.local;
         if ( scope.remote ) settings.apiSettings = { url: scope.remote };
+        if ( scope.category ) settings.type = 'category';
 
         var modelWatcher = SemanticUI.watcher( scope, 'model', 
           function(value) {
@@ -90,6 +88,7 @@
         );
 
         SemanticUI.linkEvents( scope, settings, $.fn.search.settings, {
+          onSelect:         'onSelect',
           onResultsAdd:     'onResultsAdd',
           onSearchQuery:    'onSearchQuery',
           onResults:        'onResults',

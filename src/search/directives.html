@@ -13,13 +13,16 @@
 
     <script src="../sm-core.js"></script>
     <script src="../sm-addons.js"></script>
-    <script src="sm-rating.js"></script>
+    <script src="sm-search.js"></script>
 
     <script>
       angular.module('semantic-ui')
         .controller('MainController', function($scope) 
         {
-          
+          $scope.remoteSearch = 'http://api.semantic-ui.com/search/{query}';
+          $scope.remoteCategories = 'http://api.semantic-ui.com/search/category/{query}';
+
+          $scope.model0 = '';
         })
       ;
     </script>
@@ -35,47 +38,53 @@
       <h1 class="ui header">
         <img src="http://semantic-ui.com/images/logo.png">
         <div class="content">
-          Rating Directives
-          <div class="sub header">Create &amp; Control Semantic UI Rating with Angular Directives</div>
+          Search Directives
+          <div class="sub header">Create &amp; Control Semantic UI Search with Angular Directives</div>
         </div>
       </h1>
 
       <div class="ui secondary top attached segment">
         <h3 class="ui header">
-          sm-rating
-          <div class="sub header">Creates a rating.</div>
+          sm-search
+          <div class="sub header">Creates a search.</div>
         </h3>
       </div>
       <div class="ui bottom attached segment">
 
         <h5>Attributes</h5>
         <ul>
-          <li><code class="required">model</code> <code>=</code> a number variable representing the current rating (out of total).</li>
-          <li><code class="required">total</code> <code>=</code> a number variable for the maximum rating that can be given.</li>
-          <li><code class="optional">type</code> <code>@</code> a string for the type of rating (none, star, heart, + sizes).</li>
-          <li><code class="optional">disabled</code> <code>=</code> a boolean variable for disabling or enabling the rating.</li>
+          <li><code class="required">model</code> <code>=</code> an object variable representing the search result chosen.</li>
+          <li><code class="optional">placeholder</code> <code>@</code> a string to be the placeholder when the search is empty.</li>
+          <li><code class="optional">category</code> <code>@</code> a string to be set to <code>true</code> when the search results are categorized.</li>
+          <li><code class="optional">local</code> <code>=</code> an array variable of objects to search through.</li>
+          <li><code class="optional">remote</code> <code>@</code> a URL to query for search results. A <code>{query}</code> token can be used in the URL which is replaced with the text currently in the search input.</li>
           <li><code class="optional">settings</code> <code>=</code> a reference to a settings object to pass to the initialization function.</li>
         </ul>
         <h5>Callback Attributes</h5>
         <ul>
           <li><code class="optional">on-init</code> <code>=</code> Callback once the module is initialized, passing the initialized element as the first argument.</li>
-          <li><code class="optional">on-rate</code> <code>=</code> Callback after user selects a new rating.</li>
+          <li><code class="optional">on-select</code> <code>=</code> Callback on element selection by user. The first parameter includes the filtered response results for that element. The function should return false to prevent default action (closing search results and selecting value).</li>
+          <li><code class="optional">on-results-add</code> <code>=</code> Callback after processing element template to add html to results. Function should return false to prevent default actions.</li>
+          <li><code class="optional">on-search-query</code> <code>=</code> Callback on search query.</li>
+          <li><code class="optional">on-results</code> <code>=</code> Callback on server response.</li>
+          <li><code class="optional">on-results-open</code> <code>=</code> Callback when results are opened.</li>
+          <li><code class="optional">on-results-close</code> <code>=</code> Callback when results are closed.</li>
         </ul>
 
         <h5>Example</h5>
 
         <pre class="ui segment prettyprint lang-html" id="code0"></pre>
 
-        <div data-copy-to="#code0">
-          <sm-rating class="star" model="3" total="5"></sm-rating>
+        <div data-copy-to="#code0"> 
+          <sm-search model="model0" remote="{{ remoteSearch }}" placeholder="Common passwords..."></sm-search>
         </div>
 
       </div>
 
       <div class="ui secondary top attached segment">
         <h3 class="ui header">
-          sm-rating-bind
-          <div class="sub header">A lightweight attribute directive which calls rating() on the element with the settings object passed to the attribute. Using this directive means you need to manage the communication between Angular and Semantic UI yourself.</div>
+          sm-search-bind
+          <div class="sub header">A lightweight attribute directive which calls search() on the element with the settings object passed to the attribute. Using this directive means you need to manage the communication between Angular and Semantic UI yourself.</div>
         </h3>
       </div>
       <div class="ui bottom attached segment">
@@ -83,7 +92,10 @@
         <pre class="ui segment prettyprint lang-html" id="code1"></pre>
 
         <div data-copy-to="#code1">
-          <div class="ui heart rating" sm-rating-bind data-rating="2" data-max-rating="5"></div>
+          <div class="ui search" sm-search-bind="{apiSettings:{url:remoteSearch}}">
+            <input class="prompt" type="text" placeholder="Common passwords...">
+            <div class="results"></div>
+          </div>
         </div>
 
       </div>
@@ -111,65 +123,67 @@
         <pre class="ui segment prettyprint lang-html" id="code4"></pre>
 
         <div data-copy-to="#code4">
-          <sm-button class="teal" sm-rating-behavior="'selector'">Execute Simple Behavior</sm-button>
-          <sm-button class="teal" sm-rating-behavior="{$: 'selector', value: scopeValue1, enabled: scopeValue2, evt: 'mouseover'}">Execute Advanced Behavior</sm-button>
+          <sm-button class="teal" sm-search-behavior="'selector'">Execute Simple Behavior</sm-button>
+          <sm-button class="teal" sm-search-behavior="{$: 'selector', value: scopeValue1, enabled: scopeValue2, evt: 'mouseover'}">Execute Advanced Behavior</sm-button>
         </div>
 
       </div>
 
-      <div class="ui secondary top attached segment">
+      <div class="ui secondary segment">
         <h3 class="ui header">
-          sm-rating-set
-          <div class="sub header">When a DOM event fires on the element with the directive, it can command rating(s) to be set.</div>
+          sm-search-query
+          <div class="sub header">When a DOM event fires on the element with the directive, it can command search(es) to search for value currently set in search input.</div>
         </h3>
       </div>
-      <div class="ui bottom attached segment">
 
-        <pre class="ui segment prettyprint lang-html" id="code5"></pre>
-
-        <div data-copy-to="#code5">
-          <sm-rating class="star rating5" model="3" total="5"></sm-rating>
-          <sm-button class="teal" sm-rating-set="{$:'.rating5', value:1}">Set to 1</sm-button>
-        </div>
-
-      </div>
-
-      <div class="ui secondary top attached segment">
+      <div class="ui secondary segment">
         <h3 class="ui header">
-          sm-rating-disable / sm-rating-enable
-          <div class="sub header">When a DOM event fires on the element with the directive, it can command rating(s) to be disabled or enabled.</div>
+          sm-search-cancel-query
+          <div class="sub header">When a DOM event fires on the element with the directive, it can command search(es) to cancel current remote search query.</div>
         </h3>
       </div>
-      <div class="ui bottom attached segment">
 
-        <pre class="ui segment prettyprint lang-html" id="code6"></pre>
-
-        <div data-copy-to="#code6">
-          <sm-rating class="star rating6" model="3" total="5"></sm-rating>
-          <sm-button class="teal" sm-rating-disable="'.rating6'">Disable</sm-button>
-          <sm-button class="teal" sm-rating-enable="'.rating6'">Enable</sm-button>
-        </div>
-
-      </div>
-
-      <div class="ui secondary top attached segment">
+      <div class="ui secondary segment">
         <h3 class="ui header">
-          sm-rating-clear
-          <div class="sub header">When a DOM event fires on the element with the directive, it can command rating(s) to be cleared of a value.</div>
+          sm-search-search-local
+          <div class="sub header">When a DOM event fires on the element with the directive, it can command search(es) to search local object for specified query and display results.</div>
         </h3>
       </div>
-      <div class="ui bottom attached segment">
 
-        <pre class="ui segment prettyprint lang-html" id="code7"></pre>
-
-        <div data-copy-to="#code7">
-          <sm-rating class="star rating7" model="3" total="5"></sm-rating>
-          <sm-button class="teal" sm-rating-clear="'.rating7'">Clear</sm-button>
-        </div>
-
+      <div class="ui secondary segment">
+        <h3 class="ui header">
+          sm-search-search-remote
+          <div class="sub header">When a DOM event fires on the element with the directive, it can command search(es) to search remote endpoint for specified query and display results.</div>
+        </h3>
       </div>
 
-    </div>
+      <div class="ui secondary segment">
+        <h3 class="ui header">
+          sm-search-set
+          <div class="sub header">When a DOM event fires on the element with the directive, it can command search(es) to set search input to value.</div>
+        </h3>
+      </div>
+
+      <div class="ui secondary segment">
+        <h3 class="ui header">
+          sm-search-show-results
+          <div class="sub header">When a DOM event fires on the element with the directive, it can command search(es) to show results container.</div>
+        </h3>
+      </div>
+
+      <div class="ui secondary segment">
+        <h3 class="ui header">
+          sm-search-hide-results
+          <div class="sub header">When a DOM event fires on the element with the directive, it can command search(es) to hide results container.</div>
+        </h3>
+      </div>
+
+      <div class="ui secondary segment">
+        <h3 class="ui header">
+          sm-search-destroy
+          <div class="sub header">When a DOM event fires on the element with the directive, it can command search(es) to remove all events.</div>
+        </h3>
+      </div>
 
     <script src="../examples.js"></script>
 
