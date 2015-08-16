@@ -31,4 +31,52 @@
     }]);
   });
 
+  app.directive('smShape', ['SemanticUI',
+  function SemanticShape(SemanticUI)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+
+        settings: '=',
+        onInit: '=',
+        /* Events */
+        onBeforeChange: '=',
+        onChange: '=',
+      },
+
+      template: [
+        '<div class="ui shape">',
+        ' <div class="sides" ng-transclude>',
+        ' </div>',
+        '</div>'
+      ].join('\n'),
+
+      link: function(scope, element, attributes)
+      {
+        var settings = scope.settings || {};
+
+        SemanticUI.linkSettings( scope, element, attributes, 'shape' );
+
+        SemanticUI.linkEvents( scope, settings, $.fn.shape.settings, {
+          onBeforeChange:   'onBeforeChange',
+          onChange:         'onChange'
+        });
+
+        element.shape( settings );
+
+        if ( angular.isFunction( scope.onInit ) ) {
+          scope.onInit( element );
+        }
+      }
+
+    }
+  }]);
+
 })( angular.module('semantic-ui') );
