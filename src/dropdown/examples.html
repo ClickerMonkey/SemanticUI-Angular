@@ -318,7 +318,7 @@
         <p>A dropdown</p>
 
         <div data-copy-to="#example0">
-          <sm-dropdown model="model0" items="options0" label="item" value="item" default-text="'File'" settings="{action:'hide'}"></sm-dropdown>
+          <sm-dropdown model="model0" items="options0" default-text="'File'" settings="{action:'hide'}"></sm-dropdown>
         </div>
 
         <pre class="ui segment prettyprint lang-html" id="example0"></pre>
@@ -370,7 +370,7 @@
         <p>A selection dropdown can allow multiple selections</p>
 
         <div data-copy-to="#example3">
-          <sm-dropdown class="fluid multiple search selection" model="model3" items="libraries" label="item" value="item" default-text="'Skills'"></sm-dropdown>
+          <sm-dropdown class="fluid multiple search selection" model="model3" items="libraries" default-text="'Skills'"></sm-dropdown>
         </div>
 
         <pre class="ui segment prettyprint lang-html" id="example3"></pre>
@@ -388,7 +388,7 @@
         <div class="ui sub header">Selection</div>
 
         <div data-copy-to="#example4">
-          <sm-dropdown class="fluid multiple search selection" model="model4" items="libraries" label="item" value="item" default-text="'Skills'" settings="{maxSelections: 3}"></sm-dropdown>
+          <sm-dropdown class="fluid multiple search selection" model="model4" items="libraries" default-text="'Skills'" settings="{maxSelections: 3}"></sm-dropdown>
         </div>
 
         <pre class="ui segment prettyprint lang-html" id="example4"></pre>
@@ -417,7 +417,7 @@
         <div class="ui sub header">Single</div>
 
         <div data-copy-to="#example5">
-          <sm-dropdown class="fluid search selection" model="model5" items="libraries" label="item" value="item" default-text="'Skills'" settings="{allowAdditions: true}"></sm-dropdown>
+          <sm-dropdown class="fluid search selection" model="model5" items="libraries" default-text="'Skills'" settings="{allowAdditions: true}"></sm-dropdown>
         </div>
 
         <pre class="ui segment prettyprint lang-html" id="example5"></pre>
@@ -444,7 +444,7 @@
         <p>Sometimes multiselect include options which are long and would appear awkwardly as labels. Setting <code>useLabels: false</code> will display a selected count, and allow reselection directly from the menu.</p>
 
         <div data-copy-to="#example6">
-          <sm-dropdown class="fluid multiple selection" model="model6" items="libraries" label="item" value="item" default-text="'Select Libraries'" settings="{useLabels: false}"></sm-dropdown>
+          <sm-dropdown class="fluid multiple selection" model="model6" items="libraries" default-text="'Select Libraries'" settings="{useLabels: false}"></sm-dropdown>
         </div>
 
         <pre class="ui segment prettyprint lang-html" id="example6"></pre>
@@ -465,7 +465,7 @@
 
         <div data-copy-to="#example7">
           <sm-dropdown class="example7 multiple selection" model="model7" items="libraries" label="item" value="item" default-text="'Libraries'"></sm-dropdown>
-          <sm-dropdown class="example7 selection" model="model7b" items="libraries" label="item" value="item" default-text="'Library'"></sm-dropdown>
+          <sm-dropdown class="example7 selection" model="model7b" items="libraries" default-text="'Library'"></sm-dropdown>
           <sm-button sm-dropdown-clear="'.example7'">Clear</sm-button>
         </div>
 

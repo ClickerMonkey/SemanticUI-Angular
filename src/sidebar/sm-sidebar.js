@@ -35,7 +35,11 @@
       replace: true,
 
       scope: {
+        /* Required */
+        items: '=',
+        label: '&',
         /* Optional */
+        onClick: '&',
         visible: '=',
         settings: '=',
         onInit: '=',
@@ -47,15 +51,21 @@
         onHidden: '='
       },
 
-      template: '<sm-flat-menu class="ui sidebar"></sm-flat-menu>',
+      template: [
+        '<div class="ui sidebar">',
+        ' <a class="item" ng-repeat="i in items" sm-html="label({item:i})" ng-click="onClick({item:i, $event:$event})"></a>',
+        '</div>'
+      ].join('\n'),
 
       link: function(scope, element, attributes)
       {
         var settings = scope.settings || {};
 
+        SemanticUI.setDefaultFunction( scope, 'label', attributes, function(locals){return locals.item} );
+
         SemanticUI.linkSettings( scope, element, attributes, 'sidebar' );
 
-        if ( attributes.visble )
+        if ( attributes.visible )
         {
           var visibleWatcher = SemanticUI.watcher( scope, 'visible', 
             function(updated) {
@@ -84,10 +94,23 @@
           onHidden:  'onHidden'
         });
 
+        var pusher = $('.pusher');
+
+        if ( pusher.length )
+        {
+          element.insertBefore( pusher );
+        }
+
         // Initialize the element with the given settings.
         element.sidebar( settings );
 
-        if ( angular.isFunction( scope.onInit ) ) {
+        if ( scope.visible )
+        {
+          element.sidebar( 'show' );
+        }
+
+        if ( angular.isFunction( scope.onInit ) ) 
+        {
           scope.onInit( element );
         }
       }

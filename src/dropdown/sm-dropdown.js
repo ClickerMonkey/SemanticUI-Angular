@@ -173,6 +173,9 @@
           }
         };
 
+        SemanticUI.setDefaultFunction( scope, 'label', attributes, function(locals){return locals.item} );
+        SemanticUI.setDefaultFunction( scope, 'value', attributes, function(locals){return locals.item} );
+        
         element.ready(function()
         {
           var settings = scope.settings || {};

@@ -6,6 +6,13 @@
   {
     var SemanticUI = 
     {
+      setDefaultFunction: function(scope, variable, attributes, func)
+      {
+        if ( !attributes[ variable ] )
+        {
+          scope[ variable ] = func;
+        }
+      },
       triggerChange: function(scope, variable, element, initialized)
       {
         scope.$watch( variable, function(updated)
@@ -180,19 +187,6 @@
           element.on( previousEvent = settings.evt, onEvent );
 
         }, true );
-      },
-      async: function(scope, func)
-      {
-        return function() 
-        {
-          var context = this;
-          var args = Array.prototype.slice.call( arguments );
-
-          scope.$evalAsync(function()
-          {
-            func.apply( context, args );
-          })
-        }
       },
       watcher: function(scope, expression, func, context, force) 
       {

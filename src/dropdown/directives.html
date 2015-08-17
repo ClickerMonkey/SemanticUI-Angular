@@ -68,8 +68,8 @@
         <ul>
           <li><code class="required">model</code> <code>=</code> a variable which represents the currently selected option(s) in the dropdown.</li>
           <li><code class="required">items</code> <code>=</code> the iterable object which populates the options in the dropdown.</li>
-          <li><code class="required">label</code> <code>&amp;</code> an expression which uses the item variable to determine what should be the label.</li>
-          <li><code class="required">value</code> <code>&amp;</code> an expression which uses the item variable to determine what should be the value.</li>
+          <li><code class="optional">label</code> <code>&amp;</code> an expression which uses the item variable to determine what should be the label.</li>
+          <li><code class="optional">value</code> <code>&amp;</code> an expression which uses the item variable to determine what should be the value.</li>
           <li><code class="optional">settings</code> <code>=</code> reference to a settings object to pass to the initialization function.</li>
           <li><code class="optional">default-text</code> <code>=</code> a reference to a string to be used as a placeholder when no option(s) are selected.</li>
         </ul>
@@ -95,7 +95,7 @@
         </div>
 
         <div data-copy-to="#code0">
-          <sm-dropdown class="selection" model="model0" items="projects" label="item.name" value="item"></sm-dropdown>
+          <sm-dropdown class="selection" model="model0" items="projects" label="item.name"></sm-dropdown>
         </div>
 
       </div>
