@@ -279,6 +279,7 @@
         items: '=',
         label: '&',
         /* Optional */
+        onClick: '&',
         children: '&',
         description: '&',
         icon: '&',
@@ -287,11 +288,11 @@
       },
       template: [
         '<div class="menu">',
-          '<div ng-repeat="i in items" ng-hide="isHidden( i )" ng-class="{item: !isDivider( i ), divider: isDivider( i )}">',
+          '<div ng-repeat="i in items" ng-hide="isHidden( i )" ng-class="{item: !isDivider( i ), divider: isDivider( i )}" ng-click="onClick({item: i, $event:$event})">',
             '<i class="{{ getIcon( i ) }} icon" ng-if="getIcon( i )"></i>',
             '<span class="description" ng-if="getDescription( i )">{{ getDescription( i ) }}</span>',
             '{{ getLabel( i ) }}',
-            '<sm-menu ng-if="hasChildren( i )" items="getChildren( i )" label="getLabel( item )" children="getChildren( item )" description="getDescription( item )" icon="getIcon( item )" hidden="isHidden( item )" divider="isDivider( item )"></sm-menu>',
+            '<sm-menu ng-if="hasChildren( i )" items="getChildren( i )" label="getLabel( item )" children="getChildren( item )" description="getDescription( item )" icon="getIcon( item )" hidden="isHidden( item )" divider="isDivider( item )" on-click="onClick({item: item, $event: $event})"></sm-menu>',
           '</div>',
         '</div>'
       ].join('\n'),
@@ -322,8 +323,78 @@
         };
 
       },
-      compile: SemanticUI.RecursiveCompiler
+      compile: SemanticUI.RecursiveCompiler()
     };
+  }]);
+
+  app.directive('smList', ['SemanticUI',
+  function SemanticList(SemanticUI)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      scope: 
+      {
+        /* Required */
+        items: '=',
+        /* Optional */
+        description: '&',
+        icon: '&',
+        image: '&',
+        header: '&',
+        headerHref: '&',
+        children: '&',
+        onHeader: '&',
+        /* Private */
+        has: '=?'
+      },
+
+      template: [
+        '<div class="ui list">',
+        ' <div class="item" ng-repeat="i in items" ng-init="$ = {item: i}">',
+        '   <i ng-if="has.icon" class="icon {{ icon($) }}"></i>',
+        '   <img ng-if="has.image" class="ui avatar image" ng-src="{{ image($) }}">',
+        '   <div ng-if="has.header || has.children" class="content">',
+        '     <div ng-if="!has.headerLink" class="header" sm-html="header($)"></div>',
+        '     <a ng-if="has.headerLink" class="header" ng-href="{{ headerHref($) }}" ng-click="onHeader($)" sm-html="header($)"></a>',
+        '     <div class="description" sm-html="description($)"></div>',
+        '     <sm-list ng-if="has.children && getChildCount($)" has="has" items="children($)" description="description({item: item})" icon="icon({item: item})" header="header({item: item})" header-href="headerHref({item: item})" children="children({item: item})" on-header="onHeader({item: item})"></sm-list>',
+        '   </div>',
+        '   <div ng-if="!has.header && !has.children" class="content" sm-html="description($)"></div>',
+        ' </div>',
+        '</div>'
+      ].join('\n'),
+
+      compile: SemanticUI.RecursiveCompiler(function(scope, element, attributes)
+      {
+        if ( !scope.has )
+        {
+          scope.has = {
+            icon:         !!attributes.icon,
+            image:        !!attributes.image,
+            header:       !!attributes.header,
+            headerLink:   !!attributes.headerHref,
+            description:  !!attributes.description,
+            children:     !!attributes.children
+          };
+        }
+
+        scope.getChildCount = function($)
+        {
+          var children = scope.children($);
+
+          return children ? children.length : 0;
+        };
+
+        SemanticUI.setDefaultFunction( scope, 'description', attributes, function(locals){return locals.item} );
+        SemanticUI.setDefaultFunction( scope, 'icon', attributes, function(locals){return locals.item.icon} );
+        SemanticUI.setDefaultFunction( scope, 'header', attributes, function(locals){return locals.item.header} );
+        SemanticUI.setDefaultFunction( scope, 'children', attributes, function(locals){return locals.item.children} );
+      })
+    }
   }]);
 
 })( angular.module('semantic-ui') );

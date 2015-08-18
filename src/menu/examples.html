@@ -19,7 +19,10 @@
       angular.module('semantic-ui')
         .controller('MainController', function($scope) 
         {
-
+          $scope.handleClick = function(item, $event)
+          {
+            alert( item.label );
+          };
         })
       ;
     </script>
@@ -40,7 +43,7 @@
             <div class="ui dropdown" sm-dropdown-bind="{action: 'hide'}">
               <div class="text">File</div>
               <i class="dropdown icon"></i>
-              <sm-menu items="menu" label="item.label" description="item.description" icon="item.icon" children="item.children" divider="item.divider"></sm-menu>
+              <sm-menu items="menu" label="item.label" description="item.description" icon="item.icon" children="item.children" divider="item.divider" on-click="handleClick(item, $event)"></sm-menu>
             </div>
           </div>
           <script>
