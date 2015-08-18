@@ -19,7 +19,7 @@
       link: function(scope, element, attributes)
       {
         scope.smTransitionEvents = scope.smTransitionEvents || 'click';
-
+        
         element.on( scope.smTransitionEvents, function()
         {
           ( scope.smTransitionOther ? $( scope.smTransitionOther ) : element ).transition( scope.smTransition );
