@@ -1,6 +1,4 @@
-## SemanticUI-Angular
-
-[![Build Status](https://travis-ci.org/ClickerMonkey/SemanticUI-Angular.svg?branch=master)](https://travis-ci.org/ClickerMonkey/SemanticUI-Angular) [![devDependency Status](https://david-dm.org/ClickerMonkey/SemanticUI-Angular/dev-status.svg?branch=master)](https://david-dm.org/ClickerMonkey/SemanticUI-Angular#info=devDependencies)
+## SemanticUI-Angular [![Build Status](https://travis-ci.org/ClickerMonkey/SemanticUI-Angular.svg?branch=master)](https://travis-ci.org/ClickerMonkey/SemanticUI-Angular) [![devDependency Status](https://david-dm.org/ClickerMonkey/SemanticUI-Angular/dev-status.svg?branch=master)](https://david-dm.org/ClickerMonkey/SemanticUI-Angular#info=devDependencies)
 
 This library provides over 100 Angular directives for building Semantic UI elements, collections, views & modules.
 
