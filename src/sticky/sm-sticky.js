@@ -32,6 +32,7 @@
 
       scope: {
         /* Optional */
+        context: '@',
         settings: '=',
         onInit: '=',
         /* Events */
@@ -62,9 +63,15 @@
             onBottom:       'onBottom'
           });
 
+          if ( !settings.context )
+          {
+            settings.context = scope.context;
+          }
+
           element.sticky( settings );
 
-          if ( angular.isFunction( scope.onInit ) ) {
+          if ( angular.isFunction( scope.onInit ) ) 
+          {
             scope.onInit( element );
           }
         });
