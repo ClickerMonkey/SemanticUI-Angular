@@ -134,13 +134,10 @@
         smData: '='
       },
       link: function(scope, element, attributes) {
-        var expression = function() {
-          return scope.smData;
-        };
         var setter = function() {
           element.data( scope.smData );
         };
-        scope.$watch( expression, setter, true );
+        scope.$watch( 'smData', setter, true );
       }
     }
   });
@@ -167,6 +164,7 @@
       {
         var timeout = false;
         var value = false;
+        var fuzzy = false;
 
         var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         var THS = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th'];

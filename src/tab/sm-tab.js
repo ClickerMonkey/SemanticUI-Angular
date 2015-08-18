@@ -8,10 +8,7 @@
   }]);
 
   var BEHAVIORS = {
-    smTabReset:     'reset',
-    smTabShow:      'show',
-    smTabHide:      'hide',
-    smTabDestroy:   'destroy'
+    smTabSet:       'change tab'
   };
 
   angular.forEach( BEHAVIORS, function(method, directive)
@@ -32,38 +29,58 @@
       replace: true,
 
       scope: {
+        /* Required */
         tabs: '=',
-        active: '@'
+        /* Optional */
+        active: '=?',
+        settings: '='
       },
 
       template: [
         '<div class="ui menu">',
-        '  <a class="item" ng-repeat="(name, title) in tabs" ng-class="{active: name === active}" data-tab="{{ name }}">{{ title }}</a>',
+        '  <a class="item" ng-repeat="(name, title) in tabs" ng-class="{active: name === active}" data-tab="{{ name }}" sm-html="title"></a>',
         '</div>'
       ].join('\n'),
 
-      controller: function($scope)
-      {
-        if ( !($scope.active in $scope.tabs) )
-        {
-          for (var prop in $scope.tabs)
-          {
-            $scope.active = prop;
-            break;
-          }
-        }
-      },
-
       link: function(scope, element, attributes)
       {
+        var setActiveTab = function( tab )
+        {
+          if ( tab )
+          {
+            element.tab( 'change tab', tab );
+          }
+        };
+
         element.ready(function()
         {
           var settings = scope.settings || {};
           var elements = element.children('.item');
+          var hasActive = !!attributes.active;
 
           SemanticUI.linkSettings( scope, elements, attributes, 'tab', true );
 
+          if ( hasActive )
+          {
+            var activeWatcher = SemanticUI.watcher( scope, 'active', 
+              function( tab ) {
+                setActiveTab( tab );
+              }
+            );
+
+            SemanticUI.onEvent( settings, 'onVisible', 
+              function(tab) {
+                activeWatcher.set( tab );
+              }
+            );
+          }
+
           elements.tab( settings );
+
+          if ( hasActive ) 
+          {
+            setActiveTab( scope.active );
+          }
         });
       }
     }
@@ -84,7 +101,7 @@
         name: '@'
       },
 
-      template: '<div class="ui bottom attached tab segment" data-tab="{{ name }}" ng-transclude></div>'
+      template: '<div class="ui tab" data-tab="{{ name }}" ng-transclude></div>'
     };
   }]);
 
