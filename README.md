@@ -1,8 +1,3 @@
-An Angular library with over 100 directives for using Semantic UI Modules.
+**SemanticUI-Angular** provides over 100 Angular directives for building Semantic UI elements, collections, views & modules.
 
-### Terminology
-
-- `Module` - a Semantic UI component that can be controlled with javascript.
-- `Behavior` - a Semantic UI command sent to the module to modify its state.
-- `Event` - a Semantic UI event that can invoke a function in Angular
-- `Directive` - A custom HTML element / attribute in Angular.
+Checkout `index.html` for more information.
