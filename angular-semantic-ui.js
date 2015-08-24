@@ -2325,7 +2325,7 @@
         /* Required */
         model: '=',
         /* Optional */
-        text: '=',
+        text: '=?',
         icon: '@',
         placeholder: '@',
         category: '@',
@@ -2371,6 +2371,11 @@
         SemanticUI.onEvent( settings, 'onSelect', 
           function(result, response) {
             modelWatcher.set( result );
+            if ( attributes.text ) {
+              scope.$evalAsync(function() {
+                scope.text = result.title;
+              });
+            }
           }
         );
 
