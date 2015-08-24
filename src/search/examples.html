@@ -268,6 +268,7 @@
           ];
 
           $scope.model0 = null;
+          $scope.model0Text = null;
           $scope.model1 = null;
           $scope.model2 = null;
           $scope.model3 = null;
@@ -288,11 +289,11 @@
         <p>A search can display a set of results.</p>
 
         <div class="current value">
-          {{ model0 }}
+          {{ model0 }} - "{{ model0Text }}"
         </div>
 
         <div data-copy-to="#example0">
-          <sm-search model="model0" remote="{{ remoteSearch }}" placeholder="Common passwords..."></sm-search>
+          <sm-search model="model0" text="model0Text" remote="{{ remoteSearch }}" placeholder="Common passwords..."></sm-search>
         </div>
 
         <pre class="ui segment prettyprint lang-html" id="example0"></pre>

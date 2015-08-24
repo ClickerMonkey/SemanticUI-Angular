@@ -39,6 +39,7 @@
         /* Required */
         model: '=',
         /* Optional */
+        text: '=',
         icon: '@',
         placeholder: '@',
         category: '@',
@@ -58,7 +59,7 @@
       template: [
         '<div class="ui search" ng-class="{category: category}">',
         '  <div class="ui input" ng-class="{icon: icon}">',
-        '    <input class="prompt" type="text" placeholder="{{ placeholder }}">',
+        '    <input class="prompt" type="text" placeholder="{{ placeholder }}" ng-model="text">',
         '    <i ng-if="icon" class="{{ icon }} icon"></i>',
         '  </div>',
         '  <div class="results"></div>',
