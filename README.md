@@ -2,7 +2,7 @@
 
 This library provides over 100 Angular directives for building Semantic UI elements, collections, views & modules.
 
-Checkout `index.html` for more information.
+Check out the [Documentation](http://clickermonkey.github.io/SemanticUI-Angular/) where you can see examples similar to those on http://semantic-ui.com except with angular directives.
 
 ### Dependencies
 

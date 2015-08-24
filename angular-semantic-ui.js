@@ -1852,6 +1852,342 @@
 (function(app)
 {
 
+  app.directive('smPopupBind', ['SemanticUI',
+  function SemanticModalBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smPopupBind', 'popup' );
+  }]);
+
+  var BEHAVIORS = {
+    smPopupShow:        'show',
+    smPopupHide:        'hide',
+    smPopupHideAll:     'hide all',
+    smPopupToggle:      'toggle',
+    smPopupReposition:  'reposition',
+    smPopupDestroy:     'destroy',
+    smPopupRemove:      'remove popup'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI) 
+    {
+      return SemanticUI.createBehavior( directive, 'popup', method );
+    }]);
+  });
+
+  // An attribute directive which displays a popup for this element.
+  app.directive('smPopup', ['SemanticUI',
+  function SemanticPopup(SemanticUI)
+  {
+    return {
+      restrict: 'A',
+      scope: {
+        /* Required */
+        smPopup: '=',
+        /* Optional */
+        smPopupTitle: '=',
+        smPopupHtml: '=',
+        smPopupPosition: '@',
+        smPopupVariation: '@',
+        smPopupSettings: '=',
+        smPopupOnInit: '=',
+        /* Events */
+        smPopupOnCreate: '=',
+        smPopupOnRemove: '=',
+        smPopupOnShow: '=',
+        smPopupOnVisible: '=',
+        smPopupOnHide: '=',
+        smPopupOnHidden: '='
+      },
+      link: function(scope, element, attributes) 
+      {
+        var settings = scope.smPopupSettings || {};
+
+        SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupSettings' );
+
+        SemanticUI.bindAttribute( scope, 'smPopup', element, 'data-content' );
+        SemanticUI.bindAttribute( scope, 'smPopupTitle', element, 'data-title' );
+        SemanticUI.bindAttribute( scope, 'smPopupHtml', element, 'data-html' );
+        SemanticUI.bindAttribute( scope, 'smPopupPosition', element, 'data-position' );
+        SemanticUI.bindAttribute( scope, 'smPopupVariation', element, 'data-variation' );
+
+        SemanticUI.linkEvents( scope, settings, {
+          onCreate:  'smPopupOnCreate',
+          onRemove:  'smPopupOnRemove',
+          onShow:    'smPopupOnShow',
+          onVisible: 'smPopupOnVisible',
+          onHide:    'smPopupOnHide',
+          onHidden:  'smPopupOnHidden'
+        });
+
+        element.popup( settings );
+
+        if ( angular.isFunction( scope.smPopupOnInit ) ) 
+        {
+          scope.smPopupOnInit( element );
+        }
+      }
+    };
+  }]);
+
+  // An attribute directive to show the detached popup which follows this element.
+  app.directive('smPopupInline', ['SemanticUI',
+  function SemanticPopupInline(SemanticUI) 
+  {
+    return {
+      restrict: 'A',
+      scope: {
+        /* Optional */
+        smPopupInline: '=',
+        smPopupInlineOnInit: '=',
+        /* Events */
+        smPopupInlineOnCreate: '=',
+        smPopupInlineOnRemove: '=',
+        smPopupInlineOnShow: '=',
+        smPopupInlineOnVisible: '=',
+        smPopupInlineOnHide: '=',
+        smPopupInlineOnHidden: '='
+      },
+      link: function(scope, element, attributes) 
+      {
+        var settings = scope.smPopupInline || {};
+
+        SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupInline' );
+
+        SemanticUI.linkEvents( scope, settings, {
+          onCreate:  'smPopupInlineOnCreate',
+          onRemove:  'smPopupInlineOnRemove',
+          onShow:    'smPopupInlineOnShow',
+          onVisible: 'smPopupInlineOnVisible',
+          onHide:    'smPopupInlineOnHide',
+          onHidden:  'smPopupInlineOnHidden'
+        });
+
+        settings.inline = true;
+
+        element.popup( settings );
+
+        if ( angular.isFunction( scope.smPopupInlineOnInit ) ) {
+          scope.smPopupInlineOnInit( element );
+        }
+      }
+    };
+  }]);
+
+  // An attribute directive to show a detached popup over this element given it's name.
+  app.directive('smPopupDisplay', ['SemanticUI',
+  function SemanticPopupDisplay(SemanticUI) 
+  {
+    return {
+      restrict: 'A',
+      scope: {
+        /* Required */
+        smPopupDisplay: '@',
+        /* Optional */
+        smPopupDisplaySettings: '=',
+        smPopupDisplayOnInit: '=',
+        /* Events */
+        smPopupDisplayOnCreate: '=',
+        smPopupDisplayOnRemove: '=',
+        smPopupDisplayOnShow: '=',
+        smPopupDisplayOnVisible: '=',
+        smPopupDisplayOnHide: '=',
+        smPopupDisplayOnHidden: '='
+      },
+      link: function(scope, element, attributes) 
+      {
+        var settings = scope.smPopupDisplaySettings || {};
+
+        SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupDisplaySettings' );
+
+        SemanticUI.linkEvents( scope, settings, $.fn.popup.settings, {
+          onCreate:  'smPopupDisplayOnCreate',
+          onRemove:  'smPopupDisplayOnRemove',
+          onShow:    'smPopupDisplayOnShow',
+          onVisible: 'smPopupDisplayOnVisible',
+          onHide:    'smPopupDisplayOnHide',
+          onHidden:  'smPopupDisplayOnHidden'
+        });
+
+        settings.popup = '[data-popup-named="' + attributes.smPopupDisplay + '"]';
+
+        element.popup( settings );
+
+        if ( angular.isFunction( scope.smPopupDisplayOnInit ) ) {
+          scope.smPopupDisplayOnInit( element );
+        }
+      }
+    };
+  }]);
+
+  // An element directive for a popup, can be used after an element or can be named and used with sm-popup-display.
+  app.directive('smPopupDetached', 
+  function SemanticPopupDetached() 
+  {
+    return {
+      restrict: 'E',
+      replace: true,
+      transclude: true,
+      scope: {
+        name: '@'
+      },
+      template: '<div class="ui popup" data-popup-named="{{ name }}" ng-transclude></div>'
+    };
+  });
+
+})( angular.module('semantic-ui') );
+(function(app)
+{
+
+  app.directive('smProgressBind', ['SemanticUI',
+  function SemanticModalBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smProgressBind', 'progress' );
+  }]);
+
+  var BEHAVIORS = {
+    'smProgressIncrement': 'increment'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI) 
+    {
+      return SemanticUI.createBehavior( directive, 'progress', method );
+    }]);
+  });
+
+  app.directive('smProgress', ['SemanticUI',
+  function SemanticProgress(SemanticUI) 
+  {
+    var addText = function( scope, attributes, settings, attribute, property )
+    {
+      if ( angular.isDefined( attributes[ attribute ] ) )
+      {
+        settings.text = settings.text || {};
+        settings.text[ property ] = scope[ attribute ];
+      }
+    };
+
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+        /* Required */
+        model: '=',
+        /* Optional */
+        total: '=',
+        label: '@',
+        activeText: '@',
+        successText: '@',
+        errorText: '@',
+        warningText: '@',
+        duration: '@',
+        onInit: '=',
+        /* Events */
+        onChange: '=',
+        onSuccess: '=',
+        onActive: '=',
+        onError: '=',
+        onWarning: '='
+      },
+
+      template: [
+        '<div class="ui progress">',
+        '  <div class="bar">',
+        '    <div class="progress" ng-show="label"></div>',
+        '  </div>',
+        '  <div class="label" ng-transclude></div>',
+        '</div>'
+      ].join('\n'),
+
+      link: function(scope, element, attributes)
+      {
+        var settings = scope.settings || {};
+
+        SemanticUI.linkSettings( scope, element, attributes, 'progress' );
+
+        SemanticUI.linkEvents( scope, settings, $.fn.progress.settings, {
+          onChange:   'onChange',
+          onSuccess:  'onSuccess',
+          onActive:   'onActive',
+          onError:    'onError',
+          onWarning:  'onWarning'
+        });
+
+        if ( !angular.isDefined( settings.showActivity ) )
+        {
+          settings.showActivity = false;
+        }
+
+        if ( angular.isDefined( attributes.label ) )
+        {
+          settings.label = scope.label;
+        }
+
+        if ( angular.isDefined( attributes.total ) )
+        {
+          settings.total = scope.total;
+        }
+        else
+        {
+          settings.total = 100;
+        }
+
+        if ( angular.isDefined( attributes.model ) )
+        {
+          settings.value = scope.model;
+        }
+
+        addText( scope, attributes, settings, 'activeText', 'active' );
+        addText( scope, attributes, settings, 'successText', 'success' );
+        addText( scope, attributes, settings, 'errorText', 'error' );
+        addText( scope, attributes, settings, 'warningText', 'warning' );
+
+        element.progress( settings );
+
+        SemanticUI.watcher( scope, 'model', function(value)
+        {
+          var total = element.progress( 'get total' ) || 100;
+
+          element.progress( 'set percent', value * 100 / total );
+          element.progress( 'set value', value );
+        });
+
+        if ( angular.isDefined( attributes.duration ) )
+        {
+          SemanticUI.watcher( scope, 'duration', function(duration)
+          {
+            element.progress( 'set duration', duration );
+          });
+        }
+
+        if ( angular.isDefined( attributes.total ) )
+        {
+          SemanticUI.watcher( scope, 'total', function(total)
+          {
+            element.progress( 'set total', total );
+          });
+        }
+
+        if ( angular.isFunction( scope.onInit ) ) 
+        {
+          scope.onInit( element );
+        }
+      }
+    };
+  }]);
+
+})( angular.module('semantic-ui') );
+(function(app)
+{
+
   app.directive('smRatingBind', ['SemanticUI', 
   function SemanticRatingBind(SemanticUI)
   {
@@ -1989,6 +2325,7 @@
         /* Required */
         model: '=',
         /* Optional */
+        text: '=',
         icon: '@',
         placeholder: '@',
         category: '@',
@@ -2008,7 +2345,7 @@
       template: [
         '<div class="ui search" ng-class="{category: category}">',
         '  <div class="ui input" ng-class="{icon: icon}">',
-        '    <input class="prompt" type="text" placeholder="{{ placeholder }}">',
+        '    <input class="prompt" type="text" placeholder="{{ placeholder }}" ng-model="text">',
         '    <i ng-if="icon" class="{{ icon }} icon"></i>',
         '  </div>',
         '  <div class="results"></div>',
@@ -2477,342 +2814,6 @@
       }
     };
     
-  }]);
-
-})( angular.module('semantic-ui') );
-(function(app)
-{
-
-  app.directive('smPopupBind', ['SemanticUI',
-  function SemanticModalBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smPopupBind', 'popup' );
-  }]);
-
-  var BEHAVIORS = {
-    smPopupShow:        'show',
-    smPopupHide:        'hide',
-    smPopupHideAll:     'hide all',
-    smPopupToggle:      'toggle',
-    smPopupReposition:  'reposition',
-    smPopupDestroy:     'destroy',
-    smPopupRemove:      'remove popup'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI) 
-    {
-      return SemanticUI.createBehavior( directive, 'popup', method );
-    }]);
-  });
-
-  // An attribute directive which displays a popup for this element.
-  app.directive('smPopup', ['SemanticUI',
-  function SemanticPopup(SemanticUI)
-  {
-    return {
-      restrict: 'A',
-      scope: {
-        /* Required */
-        smPopup: '=',
-        /* Optional */
-        smPopupTitle: '=',
-        smPopupHtml: '=',
-        smPopupPosition: '@',
-        smPopupVariation: '@',
-        smPopupSettings: '=',
-        smPopupOnInit: '=',
-        /* Events */
-        smPopupOnCreate: '=',
-        smPopupOnRemove: '=',
-        smPopupOnShow: '=',
-        smPopupOnVisible: '=',
-        smPopupOnHide: '=',
-        smPopupOnHidden: '='
-      },
-      link: function(scope, element, attributes) 
-      {
-        var settings = scope.smPopupSettings || {};
-
-        SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupSettings' );
-
-        SemanticUI.bindAttribute( scope, 'smPopup', element, 'data-content' );
-        SemanticUI.bindAttribute( scope, 'smPopupTitle', element, 'data-title' );
-        SemanticUI.bindAttribute( scope, 'smPopupHtml', element, 'data-html' );
-        SemanticUI.bindAttribute( scope, 'smPopupPosition', element, 'data-position' );
-        SemanticUI.bindAttribute( scope, 'smPopupVariation', element, 'data-variation' );
-
-        SemanticUI.linkEvents( scope, settings, {
-          onCreate:  'smPopupOnCreate',
-          onRemove:  'smPopupOnRemove',
-          onShow:    'smPopupOnShow',
-          onVisible: 'smPopupOnVisible',
-          onHide:    'smPopupOnHide',
-          onHidden:  'smPopupOnHidden'
-        });
-
-        element.popup( settings );
-
-        if ( angular.isFunction( scope.smPopupOnInit ) ) 
-        {
-          scope.smPopupOnInit( element );
-        }
-      }
-    };
-  }]);
-
-  // An attribute directive to show the detached popup which follows this element.
-  app.directive('smPopupInline', ['SemanticUI',
-  function SemanticPopupInline(SemanticUI) 
-  {
-    return {
-      restrict: 'A',
-      scope: {
-        /* Optional */
-        smPopupInline: '=',
-        smPopupInlineOnInit: '=',
-        /* Events */
-        smPopupInlineOnCreate: '=',
-        smPopupInlineOnRemove: '=',
-        smPopupInlineOnShow: '=',
-        smPopupInlineOnVisible: '=',
-        smPopupInlineOnHide: '=',
-        smPopupInlineOnHidden: '='
-      },
-      link: function(scope, element, attributes) 
-      {
-        var settings = scope.smPopupInline || {};
-
-        SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupInline' );
-
-        SemanticUI.linkEvents( scope, settings, {
-          onCreate:  'smPopupInlineOnCreate',
-          onRemove:  'smPopupInlineOnRemove',
-          onShow:    'smPopupInlineOnShow',
-          onVisible: 'smPopupInlineOnVisible',
-          onHide:    'smPopupInlineOnHide',
-          onHidden:  'smPopupInlineOnHidden'
-        });
-
-        settings.inline = true;
-
-        element.popup( settings );
-
-        if ( angular.isFunction( scope.smPopupInlineOnInit ) ) {
-          scope.smPopupInlineOnInit( element );
-        }
-      }
-    };
-  }]);
-
-  // An attribute directive to show a detached popup over this element given it's name.
-  app.directive('smPopupDisplay', ['SemanticUI',
-  function SemanticPopupDisplay(SemanticUI) 
-  {
-    return {
-      restrict: 'A',
-      scope: {
-        /* Required */
-        smPopupDisplay: '@',
-        /* Optional */
-        smPopupDisplaySettings: '=',
-        smPopupDisplayOnInit: '=',
-        /* Events */
-        smPopupDisplayOnCreate: '=',
-        smPopupDisplayOnRemove: '=',
-        smPopupDisplayOnShow: '=',
-        smPopupDisplayOnVisible: '=',
-        smPopupDisplayOnHide: '=',
-        smPopupDisplayOnHidden: '='
-      },
-      link: function(scope, element, attributes) 
-      {
-        var settings = scope.smPopupDisplaySettings || {};
-
-        SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupDisplaySettings' );
-
-        SemanticUI.linkEvents( scope, settings, $.fn.popup.settings, {
-          onCreate:  'smPopupDisplayOnCreate',
-          onRemove:  'smPopupDisplayOnRemove',
-          onShow:    'smPopupDisplayOnShow',
-          onVisible: 'smPopupDisplayOnVisible',
-          onHide:    'smPopupDisplayOnHide',
-          onHidden:  'smPopupDisplayOnHidden'
-        });
-
-        settings.popup = '[data-popup-named="' + attributes.smPopupDisplay + '"]';
-
-        element.popup( settings );
-
-        if ( angular.isFunction( scope.smPopupDisplayOnInit ) ) {
-          scope.smPopupDisplayOnInit( element );
-        }
-      }
-    };
-  }]);
-
-  // An element directive for a popup, can be used after an element or can be named and used with sm-popup-display.
-  app.directive('smPopupDetached', 
-  function SemanticPopupDetached() 
-  {
-    return {
-      restrict: 'E',
-      replace: true,
-      transclude: true,
-      scope: {
-        name: '@'
-      },
-      template: '<div class="ui popup" data-popup-named="{{ name }}" ng-transclude></div>'
-    };
-  });
-
-})( angular.module('semantic-ui') );
-(function(app)
-{
-
-  app.directive('smProgressBind', ['SemanticUI',
-  function SemanticModalBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smProgressBind', 'progress' );
-  }]);
-
-  var BEHAVIORS = {
-    'smProgressIncrement': 'increment'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI) 
-    {
-      return SemanticUI.createBehavior( directive, 'progress', method );
-    }]);
-  });
-
-  app.directive('smProgress', ['SemanticUI',
-  function SemanticProgress(SemanticUI) 
-  {
-    var addText = function( scope, attributes, settings, attribute, property )
-    {
-      if ( angular.isDefined( attributes[ attribute ] ) )
-      {
-        settings.text = settings.text || {};
-        settings.text[ property ] = scope[ attribute ];
-      }
-    };
-
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-        /* Required */
-        model: '=',
-        /* Optional */
-        total: '=',
-        label: '@',
-        activeText: '@',
-        successText: '@',
-        errorText: '@',
-        warningText: '@',
-        duration: '@',
-        onInit: '=',
-        /* Events */
-        onChange: '=',
-        onSuccess: '=',
-        onActive: '=',
-        onError: '=',
-        onWarning: '='
-      },
-
-      template: [
-        '<div class="ui progress">',
-        '  <div class="bar">',
-        '    <div class="progress" ng-show="label"></div>',
-        '  </div>',
-        '  <div class="label" ng-transclude></div>',
-        '</div>'
-      ].join('\n'),
-
-      link: function(scope, element, attributes)
-      {
-        var settings = scope.settings || {};
-
-        SemanticUI.linkSettings( scope, element, attributes, 'progress' );
-
-        SemanticUI.linkEvents( scope, settings, $.fn.progress.settings, {
-          onChange:   'onChange',
-          onSuccess:  'onSuccess',
-          onActive:   'onActive',
-          onError:    'onError',
-          onWarning:  'onWarning'
-        });
-
-        if ( !angular.isDefined( settings.showActivity ) )
-        {
-          settings.showActivity = false;
-        }
-
-        if ( angular.isDefined( attributes.label ) )
-        {
-          settings.label = scope.label;
-        }
-
-        if ( angular.isDefined( attributes.total ) )
-        {
-          settings.total = scope.total;
-        }
-        else
-        {
-          settings.total = 100;
-        }
-
-        if ( angular.isDefined( attributes.model ) )
-        {
-          settings.value = scope.model;
-        }
-
-        addText( scope, attributes, settings, 'activeText', 'active' );
-        addText( scope, attributes, settings, 'successText', 'success' );
-        addText( scope, attributes, settings, 'errorText', 'error' );
-        addText( scope, attributes, settings, 'warningText', 'warning' );
-
-        element.progress( settings );
-
-        SemanticUI.watcher( scope, 'model', function(value)
-        {
-          var total = element.progress( 'get total' ) || 100;
-
-          element.progress( 'set percent', value * 100 / total );
-          element.progress( 'set value', value );
-        });
-
-        if ( angular.isDefined( attributes.duration ) )
-        {
-          SemanticUI.watcher( scope, 'duration', function(duration)
-          {
-            element.progress( 'set duration', duration );
-          });
-        }
-
-        if ( angular.isDefined( attributes.total ) )
-        {
-          SemanticUI.watcher( scope, 'total', function(total)
-          {
-            element.progress( 'set total', total );
-          });
-        }
-
-        if ( angular.isFunction( scope.onInit ) ) 
-        {
-          scope.onInit( element );
-        }
-      }
-    };
   }]);
 
 })( angular.module('semantic-ui') );
