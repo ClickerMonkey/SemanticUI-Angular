@@ -69,6 +69,7 @@
       link: function(scope, element, attributes) 
       {
         var settings = scope.settings || {};
+        var textProperty = settings.fields && settings.fields.title ? settings.fields.title : $.fn.search.settings.fields.title;
 
         SemanticUI.linkSettings( scope, element, attributes, 'search' );
 
@@ -78,7 +79,7 @@
 
         var modelWatcher = SemanticUI.watcher( scope, 'model', 
           function(value) {
-            element.search( 'set value', value );
+            element.search( 'set value', textProperty in value ? value[ textProperty ] : value );
           }
         );
 
@@ -87,7 +88,7 @@
             modelWatcher.set( result );
             if ( attributes.text ) {
               scope.$evalAsync(function() {
-                scope.text = result.title;
+                scope.text = result[ textProperty ];
               });
             }
           }
@@ -106,6 +107,10 @@
 
         if ( angular.isFunction( scope.onInit ) ) {
           scope.onInit( element );
+        }
+
+        if ( scope.model && attributes.text && textProperty in scope.model ) {
+          scope.text = scope.model[ textProperty ];
         }
       }
     };
