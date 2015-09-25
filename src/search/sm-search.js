@@ -79,7 +79,7 @@
 
         var modelWatcher = SemanticUI.watcher( scope, 'model', 
           function(value) {
-            element.search( 'set value', textProperty in value ? value[ textProperty ] : value );
+            element.search( 'set value', value && (textProperty in value) ? value[ textProperty ] : value );
           }
         );
 

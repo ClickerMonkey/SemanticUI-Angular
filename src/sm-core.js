@@ -188,7 +188,7 @@
 
         }, true );
       },
-      watcher: function(scope, expression, func, context, force) 
+      watcher: function(scope, expression, func, context, force, equals) 
       {
         var ignoreUpdate = false;
 
@@ -200,7 +200,8 @@
           }
 
           ignoreUpdate = false;
-        });
+          
+        }, equals );
 
         return {
           set: function(value)

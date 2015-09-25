@@ -198,7 +198,7 @@
             function(updated) {
               applyValue( updated );
             }
-          , null, true );
+          , null, true, true );
 
           // Inject an onChange function into the settings which sets the model value
           // and causes the scope to be updated.
