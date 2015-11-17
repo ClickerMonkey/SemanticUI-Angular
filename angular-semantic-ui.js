@@ -1,3 +1,11 @@
+/**
+ * SemanticUI-Angular - 1.0.0
+ * Angular Directives for Semantic UI
+ * 
+ * https://github.com/ClickerMonkey/SemanticUI-Angular
+ * Released under the MIT license.
+ * Copyright 2015 Philip Diffenderfer and contributors.
+ */
 (function(app)
 {
 
