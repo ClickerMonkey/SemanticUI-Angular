@@ -4,6 +4,10 @@ This library provides over 100 Angular directives for building Semantic UI eleme
 
 Check out the [Documentation](http://clickermonkey.github.io/SemanticUI-Angular/) where you can see examples similar to those on http://semantic-ui.com except with angular directives.
 
+### Installing
+
+The easiest way to install this binding is with bower and running `bower install semantic-ui-angular-jquery`.
+
 ### Dependencies
 
 - Semantic-UI
