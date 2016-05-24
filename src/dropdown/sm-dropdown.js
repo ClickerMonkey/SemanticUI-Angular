@@ -73,8 +73,8 @@
 
       template: [
         '<div class="ui dropdown">',
-          '<div class="text" sm-class-once="{default: hasDefault()}" sm-html-once="getDefaultText()"></div>',
           '<i class="dropdown icon"></i>',
+          '<div class="text" sm-class-once="{default: hasDefault()}" sm-html-once="getDefaultText()"></div>',
           '<sm-flat-menu></sm-flat-menu>',
         '</div>'
       ].join('\n'),
