@@ -38,8 +38,8 @@
     }]);
   });
 
-  app.directive('smDropdown', ['SemanticUI',
-  function SemanticDropdown(SemanticUI) 
+  app.directive('smDropdown', ['SemanticUI', '$timeout',
+  function SemanticDropdown(SemanticUI, $timeout)
   {
     return {
 
@@ -144,33 +144,28 @@
           });
         };
       },
-      link: function(scope, element, attributes) 
-      {
-        var applyValue = function( value )
-        {
-          if ( element.dropdown('is multiple') )
-          {
-            if ( value instanceof Array )
-            {
-              var translatedValue = [];
+      link: function (scope, element, attributes) {
+        var applyValue = function (value) {
+          $timeout(function () {
+            if (element.dropdown('is multiple')) {
+              if (value instanceof Array) {
+                var translatedValue = [];
 
-              for (var i = 0; i < value.length; i++)
-              {
-                var translated = scope.translateValue( value[ i ] );
+                for (var i = 0; i < value.length; i++) {
+                  var translated = scope.translateValue(value[ i ]);
 
-                if ( angular.isDefined( translated ) )
-                {
-                  translatedValue.push( translated );
+                  if (angular.isDefined(translated)) {
+                    translatedValue.push(translated);
+                  }
                 }
-              }
 
-              element.dropdown( 'set exactly', translatedValue );
+                element.dropdown('set exactly', translatedValue);
+              }
             }
-          }
-          else
-          {
-            element.dropdown( 'set selected', scope.translateValue( value ) );
-          }
+            else {
+              element.dropdown('set selected', scope.translateValue(value));
+            }
+          }, 0);
         };
 
         SemanticUI.setDefaultFunction( scope, 'label', attributes, function(locals){return locals.item} );
