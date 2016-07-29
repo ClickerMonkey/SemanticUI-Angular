@@ -194,10 +194,7 @@
 
         scope.$watch( expression, function( updated )
         {
-          if ( !ignoreUpdate )
-          {
-            func.call( context, updated );
-          }
+          func.call( context, updated );
 
           ignoreUpdate = false;
           
