@@ -19,8 +19,8 @@
     }]);
   });
 
-  app.directive('smTabMenu', ['SemanticUI', 
-  function SemanticTabMenu(SemanticUI)
+  app.directive('smTabMenu', ['SemanticUI', '$browser',
+  function SemanticTabMenu(SemanticUI, $browser)
   {
     return {
 
@@ -52,8 +52,7 @@
           }
         };
 
-        element.ready(function()
-        {
+       $browser.notifyWhenNoOutstandingRequests(function(){
           var settings = scope.settings || {};
           var elements = element.children('.item');
           var hasActive = !!attributes.active;
