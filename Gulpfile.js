@@ -5,8 +5,8 @@ var sourcemaps = require('gulp-sourcemaps');
 var plugins = require('gulp-load-plugins')();
 var pkg = require('./package.json');
 var src = [
+  'src/sm.js',
   'src/sm-core.js',
-  'src/sm-addons.js',
   'src/*/*.js'
 ];
 
@@ -33,7 +33,7 @@ gulp.task('build-min', function () {
     .src( src )
     .pipe( sourcemaps.init() )
       .pipe( plugins.concat('angular-semantic-ui.min.js') )
-      .pipe( plugins.uglify({mangle:false}) )
+      .pipe( plugins.uglify({mangle:true}) )
     .pipe( sourcemaps.write('.') )
     .pipe( plugins.header(banner, { pkg : pkg } ))
     .pipe( gulp.dest('.') );

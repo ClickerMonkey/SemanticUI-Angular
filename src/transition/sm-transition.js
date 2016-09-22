@@ -3,8 +3,12 @@
 
   // Transitions: scale, fade, flip, drop, fly, swing, browse, slide, jiggle, flash, shake, pulse, tada, bounce
 
-  app.directive('smTransition', ['SemanticUI',
-  function SemanticTransition(SemanticUI)
+  app
+    .factory('SemanticTransitionLink', ['SemanticUI', SemanticTransitionLink])
+    .directive('smTransition', ['SemanticTransitionLink', SemanticTransition])
+  ;
+
+  function SemanticTransition(SemanticTransitionLink)
   {
     return {
 
@@ -16,17 +20,21 @@
         smTransitionOther: '@'
       },
 
-      link: function(scope, element, attributes)
-      {
-        scope.smTransitionEvents = scope.smTransitionEvents || 'click';
-        
-        element.on( scope.smTransitionEvents, function()
-        {
-          ( scope.smTransitionOther ? $( scope.smTransitionOther ) : element ).transition( scope.smTransition );
-        });
-      }
+      link: SemanticTransitionLink
     };
-    
-  }]);
+  }
 
-})( angular.module('semantic-ui') );
+  function SemanticTransitionLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      scope.smTransitionEvents = scope.smTransitionEvents || 'click';
+
+      element.on( scope.smTransitionEvents, function()
+      {
+        ( scope.smTransitionOther ? $( scope.smTransitionOther ) : element ).transition( scope.smTransition );
+      });
+    };
+  }
+
+})( angular.module('semantic-ui-transition', ['semantic-ui-core']) );

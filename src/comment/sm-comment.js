@@ -1,7 +1,11 @@
 (function(app)
 {
 
-  app.directive('smComments', ['SemanticUI',
+  app
+    .controller('SemanticCommentsController', ['$scope', SemanticCommentsController])
+    .directive('smComments', ['SemanticUI', SemanticComments])
+  ;
+
   function SemanticComments(SemanticUI)
   {
     return {
@@ -54,73 +58,75 @@
         '</div>'
       ].join('\n'),
 
-      controller: function($scope)
-      {
-        $scope.setCollapsed = function(comment, $event, collapse)
-        {
-          var $ = {comment: comment, $event: $event};
-
-          if ( comment.$isCollapsed != collapse )
-          {
-            if ( comment.$isCollapsed )
-            {
-              if ( $scope.onShowReplies($) !== false )
-              {
-                comment.$isCollapsed = false;
-              }
-            }
-            else
-            {
-              if ( $scope.onHideReplies($) !== false )
-              {
-                comment.$isCollapsed = true;
-              }
-            }
-          }
-        };
-
-        $scope.hasReplies = function($)
-        {
-          if ( !$scope.reply )
-          {
-            return false;
-          }
-
-          var replies = $scope.replies($);
-
-          return replies && replies.length;
-        };
-
-        $scope.getReplyCount = function($)
-        {
-          if ( !$scope.reply )
-          {
-            return false;
-          }
-
-          var replies = $scope.replies($);
-
-          return replies ? replies.length : 0;
-        };
-
-        $scope.getShowRepliesText = function($)
-        {
-          var count = $scope.getReplyCount($);
-
-          return count === 0 ? '' : (count === 1 ? 'Show Reply' : 'Show Replies (' + count + ')');
-        };
-
-        $scope.getHideRepliesText = function($)
-        {
-          var count = $scope.getReplyCount($);
-
-          return count === 0 ? '' : (count === 1 ? 'Hide Reply' : 'Hide Replies (' + count + ')');
-        };
-      },
+      controller: 'SemanticCommentsController',
 
       compile: SemanticUI.RecursiveCompiler()
 
     };
-  }]);
+  }
 
-})( angular.module('semantic-ui') );
+  function SemanticCommentsController($scope)
+  {
+    $scope.setCollapsed = function(comment, $event, collapse)
+    {
+      var $ = {comment: comment, $event: $event};
+
+      if ( comment.$isCollapsed != collapse )
+      {
+        if ( comment.$isCollapsed )
+        {
+          if ( $scope.onShowReplies($) !== false )
+          {
+            comment.$isCollapsed = false;
+          }
+        }
+        else
+        {
+          if ( $scope.onHideReplies($) !== false )
+          {
+            comment.$isCollapsed = true;
+          }
+        }
+      }
+    };
+
+    $scope.hasReplies = function($)
+    {
+      if ( !$scope.reply )
+      {
+        return false;
+      }
+
+      var replies = $scope.replies($);
+
+      return replies && replies.length;
+    };
+
+    $scope.getReplyCount = function($)
+    {
+      if ( !$scope.reply )
+      {
+        return false;
+      }
+
+      var replies = $scope.replies($);
+
+      return replies ? replies.length : 0;
+    };
+
+    $scope.getShowRepliesText = function($)
+    {
+      var count = $scope.getReplyCount($);
+
+      return count === 0 ? '' : (count === 1 ? 'Show Reply' : 'Show Replies (' + count + ')');
+    };
+
+    $scope.getHideRepliesText = function($)
+    {
+      var count = $scope.getReplyCount($);
+
+      return count === 0 ? '' : (count === 1 ? 'Hide Reply' : 'Hide Replies (' + count + ')');
+    };
+  }
+
+})( angular.module('semantic-ui-comment', ['semantic-ui-core', 'semantic-ui-timeago']) );

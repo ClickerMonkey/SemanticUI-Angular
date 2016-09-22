@@ -1,11 +1,11 @@
 (function(app)
 {
 
-  app.directive('smDimmerBind', ['SemanticUI', 
-  function SemanticDimmerBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smDimmerBind', 'dimmer' );
-  }]);
+  app
+    .factory('SemanticDimmerLink', ['SemanticUI', SemanticDimmerLink])
+    .directive('smDimmerBind', ['SemanticUI', SemanticDimmerBind])
+    .directive('smDimmer', ['SemanticDimmerLink', SemanticDimmer])
+  ;
 
   var BEHAVIORS = {
     smDimmerShow:           'show',
@@ -15,14 +15,18 @@
 
   angular.forEach( BEHAVIORS, function(method, directive)
   {
-    app.directive( directive, ['SemanticUI', function(SemanticUI) 
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
     {
       return SemanticUI.createBehavior( directive, 'dimmer', method );
     }]);
   });
 
-  app.directive('smDimmer', ['SemanticUI',
-  function SemanticDimmer(SemanticUI)
+  function SemanticDimmerBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smDimmerBind', 'dimmer' );
+  }
+
+  function SemanticDimmer(SemanticDimmerLink)
   {
     return {
 
@@ -45,47 +49,52 @@
 
       template: '<div class="ui dimmer" ng-transclude></div>',
 
-      link: function(scope, element, attributes) 
+      link: SemanticDimmerLink
+    };
+  }
+
+  function SemanticDimmerLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
+
+      SemanticUI.linkSettings( scope, element, attributes, 'dimmer' );
+
+      // If the visible attribute is specified, listen to onHide and update modal when variable changes.
+      if ( attributes.visible )
       {
-        var settings = scope.settings || {};
+        var visibleWatcher = SemanticUI.watcher( scope, 'visible',
+          function(updated) {
+            element.dimmer( updated ? 'show' : 'hide' );
+          }
+        );
 
-        SemanticUI.linkSettings( scope, element, attributes, 'dimmer' );
+        SemanticUI.onEvent( settings, 'onShow',
+          function(value) {
+            visibleWatcher.set( true );
+          }
+        );
 
-        // If the visible attribute is specified, listen to onHide and update modal when variable changes.
-        if ( attributes.visible )
-        {
-          var visibleWatcher = SemanticUI.watcher( scope, 'visible', 
-            function(updated) {
-              element.dimmer( updated ? 'show' : 'hide' );
-            }
-          );
+        SemanticUI.onEvent( settings, 'onHide',
+          function(value) {
+            visibleWatcher.set( false );
+          }
+        );
+      }
 
-          SemanticUI.onEvent( settings, 'onShow', 
-            function(value) {
-              visibleWatcher.set( true );
-            }
-          );
+      SemanticUI.linkEvents( scope, settings, $.fn.dimmer.settings, {
+        onShow:   'onShow',
+        onHide:   'onHide',
+        onChange: 'onChange'
+      });
 
-          SemanticUI.onEvent( settings, 'onHide', 
-            function(value) {
-              visibleWatcher.set( false );
-            }
-          );
-        }
+      element.dimmer( settings );
 
-        SemanticUI.linkEvents( scope, settings, $.fn.dimmer.settings, {
-          onShow:   'onShow',
-          onHide:   'onHide',
-          onChange: 'onChange'
-        });
-
-        element.dimmer( settings );
-
-        if ( angular.isFunction( scope.onInit ) ) {
-          scope.onInit( element );
-        }
+      if ( angular.isFunction( scope.onInit ) ) {
+        scope.onInit( element );
       }
     };
-  }]);
+  }
 
-})( angular.module('semantic-ui') );
+})( angular.module('semantic-ui-dimmer', ['semantic-ui-core']) );

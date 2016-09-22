@@ -1,11 +1,11 @@
 (function(app)
 {
 
-  app.directive('smShapeBind', ['SemanticUI', 
-  function SemanticShapeBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smShapeBind', 'shape' );
-  }]);
+  app
+    .factory('SemanticShapeLink', ['SemanticUI', SemanticShapeLink])
+    .directive('smShapeBind', ['SemanticUI', SemanticShapeBind])
+    .directive('smShape', ['SemanticShapeLink', SemanticShape])
+  ;
 
   var BEHAVIORS = {
     smShapeFlipUp:          'flip up',
@@ -25,14 +25,18 @@
 
   angular.forEach( BEHAVIORS, function(method, directive)
   {
-    app.directive( directive, ['SemanticUI', function(SemanticUI) 
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
     {
       return SemanticUI.createBehavior( directive, 'shape', method );
     }]);
   });
 
-  app.directive('smShape', ['SemanticUI',
-  function SemanticShape(SemanticUI)
+  function SemanticShapeBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smShapeBind', 'shape' );
+  }
+
+  function SemanticShape(SemanticShapeLink)
   {
     return {
 
@@ -58,25 +62,30 @@
         '</div>'
       ].join('\n'),
 
-      link: function(scope, element, attributes)
-      {
-        var settings = scope.settings || {};
+      link: SemanticShapeLink
 
-        SemanticUI.linkSettings( scope, element, attributes, 'shape' );
+    };
+  }
 
-        SemanticUI.linkEvents( scope, settings, $.fn.shape.settings, {
-          onBeforeChange:   'onBeforeChange',
-          onChange:         'onChange'
-        });
+  function SemanticShapeLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
 
-        element.shape( settings );
+      SemanticUI.linkSettings( scope, element, attributes, 'shape' );
 
-        if ( angular.isFunction( scope.onInit ) ) {
-          scope.onInit( element );
-        }
+      SemanticUI.linkEvents( scope, settings, $.fn.shape.settings, {
+        onBeforeChange:   'onBeforeChange',
+        onChange:         'onChange'
+      });
+
+      element.shape( settings );
+
+      if ( angular.isFunction( scope.onInit ) ) {
+        scope.onInit( element );
       }
+    };
+  }
 
-    }
-  }]);
-
-})( angular.module('semantic-ui') );
+})( angular.module('semantic-ui-shape', ['semantic-ui-core']) );

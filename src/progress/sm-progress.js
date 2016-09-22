@@ -1,11 +1,11 @@
 (function(app)
 {
 
-  app.directive('smProgressBind', ['SemanticUI',
-  function SemanticModalBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smProgressBind', 'progress' );
-  }]);
+  app
+    .factory('SemanticProgressLink', ['SemanticUI', SemanticProgressLink])
+    .directive('smProgressBind', ['SemanticUI', SemanticModalBind])
+    .directive('smProgress', ['SemanticProgressLink', SemanticProgress])
+  ;
 
   var BEHAVIORS = {
     'smProgressIncrement': 'increment'
@@ -13,24 +13,19 @@
 
   angular.forEach( BEHAVIORS, function(method, directive)
   {
-    app.directive( directive, ['SemanticUI', function(SemanticUI) 
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
     {
       return SemanticUI.createBehavior( directive, 'progress', method );
     }]);
   });
 
-  app.directive('smProgress', ['SemanticUI',
-  function SemanticProgress(SemanticUI) 
+  function SemanticModalBind(SemanticUI)
   {
-    var addText = function( scope, attributes, settings, attribute, property )
-    {
-      if ( angular.isDefined( attributes[ attribute ] ) )
-      {
-        settings.text = settings.text || {};
-        settings.text[ property ] = scope[ attribute ];
-      }
-    };
+    return SemanticUI.createBind( 'smProgressBind', 'progress' );
+  }
 
+  function SemanticProgress(SemanticProgressLink)
+  {
     return {
 
       restrict: 'E',
@@ -68,81 +63,95 @@
         '</div>'
       ].join('\n'),
 
-      link: function(scope, element, attributes)
+      link: SemanticProgressLink
+    };
+  }
+
+  function SemanticProgressLink(SemanticUI)
+  {
+    var addText = function( scope, attributes, settings, attribute, property )
+    {
+      if ( angular.isDefined( attributes[ attribute ] ) )
       {
-        var settings = scope.settings || {};
-
-        SemanticUI.linkSettings( scope, element, attributes, 'progress' );
-
-        SemanticUI.linkEvents( scope, settings, $.fn.progress.settings, {
-          onChange:   'onChange',
-          onSuccess:  'onSuccess',
-          onActive:   'onActive',
-          onError:    'onError',
-          onWarning:  'onWarning'
-        });
-
-        if ( !angular.isDefined( settings.showActivity ) )
-        {
-          settings.showActivity = false;
-        }
-
-        if ( angular.isDefined( attributes.label ) )
-        {
-          settings.label = scope.label;
-        }
-
-        if ( angular.isDefined( attributes.total ) )
-        {
-          settings.total = scope.total;
-        }
-        else
-        {
-          settings.total = 100;
-        }
-
-        if ( angular.isDefined( attributes.model ) )
-        {
-          settings.value = scope.model;
-        }
-
-        addText( scope, attributes, settings, 'activeText', 'active' );
-        addText( scope, attributes, settings, 'successText', 'success' );
-        addText( scope, attributes, settings, 'errorText', 'error' );
-        addText( scope, attributes, settings, 'warningText', 'warning' );
-
-        element.progress( settings );
-
-        SemanticUI.watcher( scope, 'model', function(value)
-        {
-          var total = element.progress( 'get total' ) || 100;
-
-          element.progress( 'set percent', value * 100 / total );
-          element.progress( 'set value', value );
-        });
-
-        if ( angular.isDefined( attributes.duration ) )
-        {
-          SemanticUI.watcher( scope, 'duration', function(duration)
-          {
-            element.progress( 'set duration', duration );
-          });
-        }
-
-        if ( angular.isDefined( attributes.total ) )
-        {
-          SemanticUI.watcher( scope, 'total', function(total)
-          {
-            element.progress( 'set total', total );
-          });
-        }
-
-        if ( angular.isFunction( scope.onInit ) ) 
-        {
-          scope.onInit( element );
-        }
+        settings.text = settings.text || {};
+        settings.text[ property ] = scope[ attribute ];
       }
     };
-  }]);
 
-})( angular.module('semantic-ui') );
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
+
+      SemanticUI.linkSettings( scope, element, attributes, 'progress' );
+
+      SemanticUI.linkEvents( scope, settings, $.fn.progress.settings, {
+        onChange:   'onChange',
+        onSuccess:  'onSuccess',
+        onActive:   'onActive',
+        onError:    'onError',
+        onWarning:  'onWarning'
+      });
+
+      if ( !angular.isDefined( settings.showActivity ) )
+      {
+        settings.showActivity = false;
+      }
+
+      if ( angular.isDefined( attributes.label ) )
+      {
+        settings.label = scope.label;
+      }
+
+      if ( angular.isDefined( attributes.total ) )
+      {
+        settings.total = scope.total;
+      }
+      else
+      {
+        settings.total = 100;
+      }
+
+      if ( angular.isDefined( attributes.model ) )
+      {
+        settings.value = scope.model;
+      }
+
+      addText( scope, attributes, settings, 'activeText', 'active' );
+      addText( scope, attributes, settings, 'successText', 'success' );
+      addText( scope, attributes, settings, 'errorText', 'error' );
+      addText( scope, attributes, settings, 'warningText', 'warning' );
+
+      element.progress( settings );
+
+      SemanticUI.watcher( scope, 'model', function(value)
+      {
+        var total = element.progress( 'get total' ) || 100;
+
+        element.progress( 'set percent', value * 100 / total );
+        element.progress( 'set value', value );
+      });
+
+      if ( angular.isDefined( attributes.duration ) )
+      {
+        SemanticUI.watcher( scope, 'duration', function(duration)
+        {
+          element.progress( 'set duration', duration );
+        });
+      }
+
+      if ( angular.isDefined( attributes.total ) )
+      {
+        SemanticUI.watcher( scope, 'total', function(total)
+        {
+          element.progress( 'set total', total );
+        });
+      }
+
+      if ( angular.isFunction( scope.onInit ) )
+      {
+        scope.onInit( element );
+      }
+    };
+  }
+
+})( angular.module('semantic-ui-progress', ['semantic-ui-core']) );

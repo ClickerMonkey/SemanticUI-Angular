@@ -1,11 +1,11 @@
 (function(app)
 {
 
-  app.directive('smRadioBind', ['SemanticUI',
-  function SemanticRadioBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smRadioBind', 'checkbox' );
-  }]);
+  app
+    .factory('SemanticRadioLink', ['SemanticUI', SemanticRadioLink])
+    .directive('smRadioBind', ['SemanticUI', SemanticRadioBind])
+    .directive('smRadio', ['SemanticRadioLink', SemanticRadio])
+  ;
 
   var BEHAVIORS = {
     smRadioCheck:             'check',
@@ -15,14 +15,18 @@
 
   angular.forEach( BEHAVIORS, function(method, directive)
   {
-    app.directive( directive, ['SemanticUI', function(SemanticUI) 
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
     {
       return SemanticUI.createBehavior( directive, 'checkbox', method );
     }]);
   });
 
-  app.directive('smRadio', ['SemanticUI',
-  function SemanticRadio(SemanticUI) 
+  function SemanticRadioBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smRadioBind', 'checkbox' );
+  }
+
+  function SemanticRadio(SemanticRadioLink)
   {
     return {
 
@@ -57,87 +61,92 @@
         '</div>'
       ].join('\n'),
 
-      link: function(scope, element, attributes) 
+      link: SemanticRadioLink
+    };
+  }
+
+  function SemanticRadioLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      element.ready(function()
       {
-        element.ready(function()
+        var settings = scope.settings || {};
+
+        SemanticUI.linkSettings( scope, element, attributes, 'checkbox', true );
+
+        SemanticUI.triggerChange( scope, 'model', element, true );
+
+        if ( attributes.enabled )
         {
-          var settings = scope.settings || {};
-
-          SemanticUI.linkSettings( scope, element, attributes, 'checkbox', true );
-
-          SemanticUI.triggerChange( scope, 'model', element, true );
-
-          if ( attributes.enabled )
-          {
-            var enabledWatcher = SemanticUI.watcher( scope, 'enabled',
-              function(updated) {
-                if ( angular.isDefined( updated ) ) {
-                  element.checkbox( updated ? 'set enabled' : 'set disabled' ); 
-                }
-              }
-            );
-
-            SemanticUI.onEvent( settings, 'onEnable', 
-              function(value) {
-                enabledWatcher.set( true );
-              }
-            );
-
-            SemanticUI.onEvent( settings, 'onDisable', 
-              function(value) {
-                enabledWatcher.set( false );
-              }
-            );
-          }
-
-          var modelWatcher = SemanticUI.watcher( scope, 'model', 
+          var enabledWatcher = SemanticUI.watcher( scope, 'enabled',
             function(updated) {
-              if ( updated === scope.value ) {
-                element.checkbox( 'set checked' );
+              if ( angular.isDefined( updated ) ) {
+                element.checkbox( updated ? 'set enabled' : 'set disabled' );
               }
             }
           );
 
-          SemanticUI.onEvent( settings, 'onChecked', 
-            function() {
-              modelWatcher.set( scope.value );
+          SemanticUI.onEvent( settings, 'onEnable',
+            function(value) {
+              enabledWatcher.set( true );
             }
           );
 
-          SemanticUI.linkEvents( scope, settings, $.fn.checkbox.settings, {
-            onChange:        'onChange',
-            onChecked:       'onChecked',
-            onUnchecked:     'onUnchecked',
-            onEnable:        'onEnable',
-            onDisable:       'onDisable'
-          });
+          SemanticUI.onEvent( settings, 'onDisable',
+            function(value) {
+              enabledWatcher.set( false );
+            }
+          );
+        }
 
-          // Initialize the element with the given settings.
-          element.checkbox( settings ); 
-
-          // Set initial state of the radio
-          if ( scope.model === scope.value )
-          {
-            element.checkbox( 'set checked' );
+        var modelWatcher = SemanticUI.watcher( scope, 'model',
+          function(updated) {
+            if ( updated === scope.value ) {
+              element.checkbox( 'set checked' );
+            }
           }
+        );
 
-          // If the radio is a slider, remove the radio class 
-          if ( element.hasClass( 'slider' ) )
-          {
-            element.removeClass( 'radio' );
+        SemanticUI.onEvent( settings, 'onChecked',
+          function() {
+            modelWatcher.set( scope.value );
           }
+        );
 
-          if ( angular.isDefined( scope.enabled ) && !scope.enabled )
-          {
-            element.checkbox( 'set disabled' );
-          }
-
-          if ( angular.isFunction( scope.onInit ) ) {
-            scope.onInit( element );
-          }
+        SemanticUI.linkEvents( scope, settings, $.fn.checkbox.settings, {
+          onChange:        'onChange',
+          onChecked:       'onChecked',
+          onUnchecked:     'onUnchecked',
+          onEnable:        'onEnable',
+          onDisable:       'onDisable'
         });
-      }
-    }
-  }]);
 
-})( angular.module('semantic-ui') );
+        // Initialize the element with the given settings.
+        element.checkbox( settings );
+
+        // Set initial state of the radio
+        if ( scope.model === scope.value )
+        {
+          element.checkbox( 'set checked' );
+        }
+
+        // If the radio is a slider, remove the radio class
+        if ( element.hasClass( 'slider' ) )
+        {
+          element.removeClass( 'radio' );
+        }
+
+        if ( angular.isDefined( scope.enabled ) && !scope.enabled )
+        {
+          element.checkbox( 'set disabled' );
+        }
+
+        if ( angular.isFunction( scope.onInit ) ) {
+          scope.onInit( element );
+        }
+      });
+    };
+  }
+
+})( angular.module('semantic-ui-radio', ['semantic-ui-core']) );

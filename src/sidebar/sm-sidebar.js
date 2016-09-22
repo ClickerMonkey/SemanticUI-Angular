@@ -1,11 +1,11 @@
 (function(app)
 {
 
-  app.directive('smSidebarBind', ['SemanticUI', 
-  function SemanticSidebarBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smSidebarBind', 'sidebar' );
-  }]);
+  app
+    .factory('SemanticSidebarLink', ['SemanticUI', SemanticSidebarLink])
+    .directive('smSidebarBind', ['SemanticUI', SemanticSidebarBind])
+    .directive('smSidebar', ['SemanticSidebarLink', SemanticSidebar])
+  ;
 
   var BEHAVIORS = {
     smSidebarShow:           'show',
@@ -19,14 +19,18 @@
 
   angular.forEach( BEHAVIORS, function(method, directive)
   {
-    app.directive( directive, ['SemanticUI', function(SemanticUI) 
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
     {
       return SemanticUI.createBehavior( directive, 'sidebar', method );
     }]);
   });
 
-  app.directive('smSidebar', ['SemanticUI',
-  function SemanticSidebar(SemanticUI)
+  function SemanticSidebarBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smSidebarBind', 'sidebar' );
+  }
+
+  function SemanticSidebar(SemanticSidebarLink)
   {
     return {
 
@@ -57,64 +61,69 @@
         '</div>'
       ].join('\n'),
 
-      link: function(scope, element, attributes)
+      link: SemanticSidebarLink
+    };
+  }
+
+  function SemanticSidebarLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
+
+      SemanticUI.setDefaultFunction( scope, 'label', attributes, function(locals){return locals.item} );
+
+      SemanticUI.linkSettings( scope, element, attributes, 'sidebar' );
+
+      if ( attributes.visible )
       {
-        var settings = scope.settings || {};
+        var visibleWatcher = SemanticUI.watcher( scope, 'visible',
+          function(updated) {
+            element.sidebar( updated ? 'show' : 'hide' );
+          }
+        );
 
-        SemanticUI.setDefaultFunction( scope, 'label', attributes, function(locals){return locals.item} );
+        SemanticUI.onEvent( settings, 'onHide',
+          function() {
+            visibleWatcher.set( false );
+          }
+        );
 
-        SemanticUI.linkSettings( scope, element, attributes, 'sidebar' );
+        SemanticUI.onEvent( settings, 'onShow',
+          function() {
+            visibleWatcher.set( true );
+          }
+        );
+      }
 
-        if ( attributes.visible )
-        {
-          var visibleWatcher = SemanticUI.watcher( scope, 'visible', 
-            function(updated) {
-              element.sidebar( updated ? 'show' : 'hide' );
-            }
-          );
+      SemanticUI.linkEvents( scope, settings, $.fn.sidebar.settings, {
+        onVisible: 'onVisible',
+        onShow:    'onShow',
+        onChange:  'onChange',
+        onHide:    'onHide',
+        onHidden:  'onHidden'
+      });
 
-          SemanticUI.onEvent( settings, 'onHide', 
-            function() {
-              visibleWatcher.set( false );
-            }
-          );
+      var pusher = $('.pusher');
 
-          SemanticUI.onEvent( settings, 'onShow', 
-            function() {
-              visibleWatcher.set( true );
-            }
-          );
-        }
+      if ( pusher.length )
+      {
+        element.insertBefore( pusher );
+      }
 
-        SemanticUI.linkEvents( scope, settings, $.fn.sidebar.settings, {
-          onVisible: 'onVisible',
-          onShow:    'onShow',
-          onChange:  'onChange',
-          onHide:    'onHide',
-          onHidden:  'onHidden'
-        });
+      // Initialize the element with the given settings.
+      element.sidebar( settings );
 
-        var pusher = $('.pusher');
+      if ( scope.visible )
+      {
+        element.sidebar( 'show' );
+      }
 
-        if ( pusher.length )
-        {
-          element.insertBefore( pusher );
-        }
-
-        // Initialize the element with the given settings.
-        element.sidebar( settings );
-
-        if ( scope.visible )
-        {
-          element.sidebar( 'show' );
-        }
-
-        if ( angular.isFunction( scope.onInit ) ) 
-        {
-          scope.onInit( element );
-        }
+      if ( angular.isFunction( scope.onInit ) )
+      {
+        scope.onInit( element );
       }
     };
-  }]);
+  }
 
-})( angular.module('semantic-ui') );
+})( angular.module('semantic-ui-sidebar', ['semantic-ui-core']) );

@@ -1,11 +1,11 @@
 (function(app)
 {
 
-  app.directive('smEmbedBind', ['SemanticUI', 
-  function SemanticEmbedBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smEmbedBind', 'embed' );
-  }]);
+  app
+    .factory('SemanticEmbedLink', ['SemanticUI', SemanticEmbedLink])
+    .directive('smEmbedBind', ['SemanticUI', SemanticEmbedBind])
+    .directive('smEmbed', ['SemanticEmbedLink', SemanticEmbed])
+  ;
 
   var BEHAVIORS = {
     smEmbedReset:     'reset',
@@ -16,14 +16,18 @@
 
   angular.forEach( BEHAVIORS, function(method, directive)
   {
-    app.directive( directive, ['SemanticUI', function(SemanticUI) 
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
     {
       return SemanticUI.createBehavior( directive, 'embed', method );
     }]);
   });
 
-  app.directive('smEmbed', ['SemanticUI',
-  function SemanticEmbed(SemanticUI)
+  function SemanticEmbedBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smEmbedBind', 'embed' );
+  }
+
+  function SemanticEmbed(SemanticEmbedLink)
   {
     return {
 
@@ -51,32 +55,38 @@
 
       template: '<div class="ui embed"></div>',
 
-      link: function(scope, element, attributes) 
-      {
-        var settings = scope.settings || {};
+      link: SemanticEmbedLink
+    };
+  }
 
-        SemanticUI.linkSettings( scope, element, attributes, 'embed' );
+  function SemanticEmbedLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
 
-        if ( scope.source ) settings.source = scope.source;
-        if ( scope.sourceId ) settings.id = scope.sourceId;
-        if ( scope.placeholder ) settings.placeholder = scope.placeholder;
-        if ( scope.icon ) settings.icon = scope.icon;
-        if ( scope.url ) settings.url = scope.url;
+      SemanticUI.linkSettings( scope, element, attributes, 'embed' );
 
-        SemanticUI.linkEvents( scope, settings, $.fn.embed.settings, {
-          onCreate:             'onCreate',
-          onDisplay:            'onDisplay',
-          onPlaceholderDisplay: 'onPlaceholderDisplay',
-          onEmbed:              'onEmbed'
-        });
+      if ( scope.source ) settings.source = scope.source;
+      if ( scope.sourceId ) settings.id = scope.sourceId;
+      if ( scope.placeholder ) settings.placeholder = scope.placeholder;
+      if ( scope.icon ) settings.icon = scope.icon;
+      if ( scope.url ) settings.url = scope.url;
 
-        element.embed( settings );
+      SemanticUI.linkEvents( scope, settings, $.fn.embed.settings, {
+        onCreate:             'onCreate',
+        onDisplay:            'onDisplay',
+        onPlaceholderDisplay: 'onPlaceholderDisplay',
+        onEmbed:              'onEmbed'
+      });
 
-        if ( angular.isFunction( scope.onInit ) ) {
-          scope.onInit( element );
-        }
+      element.embed( settings );
+
+      if ( angular.isFunction( scope.onInit ) ) {
+        scope.onInit( element );
       }
     };
-  }]);
+  }
 
-})( angular.module('semantic-ui') );
+
+})( angular.module('semantic-ui-embed', ['semantic-ui-core']) );
