@@ -6,7 +6,10 @@ Check out the [Documentation](http://clickermonkey.github.io/SemanticUI-Angular/
 
 ### Installing
 
-The easiest way to install this binding is with bower and running `bower install semantic-ui-angular-jquery` or `npm install semantic-ui-angular-jquery` .
+The easiest way to install this binding is with bower or npm:
+
+- bower: `bower install semantic-ui-angular-jquery`
+- npm: `npm install semantic-ui-angular-jquery`
 
 ### Modules
 
