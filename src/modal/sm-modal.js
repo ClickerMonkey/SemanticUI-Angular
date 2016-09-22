@@ -85,6 +85,12 @@
             visibleWatcher.set( false );
           }
         );
+
+        SemanticUI.onEvent( settings, 'onShow',
+          function() {
+            visibleWatcher.set( true );
+          }
+        );
       }
 
       SemanticUI.linkEvents( scope, settings, $.fn.modal.settings, {

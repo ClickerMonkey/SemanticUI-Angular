@@ -1,5 +1,5 @@
 /**
- * semantic-ui-angular-jquery - 0.2.0
+ * semantic-ui-angular-jquery - 0.2.1
  * Angular Directives for Semantic UI
  * 
  * https://github.com/ClickerMonkey/SemanticUI-Angular
@@ -400,351 +400,6 @@ angular.module('semantic-ui', [
 {
 
   app
-    .factory('SemanticAccordionLink', ['SemanticUI', SemanticAccordionLink])
-    .directive('smAccordionBind', ['SemanticUI', SemanticAccordionBind])
-    .directive('smAccordion', ['SemanticAccordionLink', SemanticAccordion])
-    .directive('smAccordionGroup', SemanticAccordionGroup)
-  ;
-
-  var BEHAVIORS = {
-    smAccordionOpen:        'open',
-    smAccordionCloseOthers: 'close others',
-    smAccordionClose:       'close',
-    smAccordionToggle:      'toggle'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI)
-    {
-      return SemanticUI.createBehavior( directive, 'accordion', method );
-    }]);
-  });
-
-  function SemanticAccordionBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smAccordionBind', 'accordion' );
-  }
-
-  function SemanticAccordion(SemanticAccordionLink)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-        /* Optional */
-        settings: '=',
-        onInit: '=',
-        /* Events */
-        onOpening: '=',
-        onOpen: '=',
-        onClosing: '=',
-        onClose: '=',
-        onChange: '='
-      },
-
-      template: '<div class="ui accordion" ng-transclude></div>',
-
-      link: SemanticAccordionLink
-    };
-  }
-
-  function SemanticAccordionLink(SemanticUI)
-  {
-    return function(scope, element, attributes)
-    {
-      element.ready(function()
-      {
-        var settings = scope.settings || {};
-
-        SemanticUI.linkSettings( scope, element, attributes, 'accordion', true );
-
-        SemanticUI.linkEvents( scope, settings, $.fn.accordion.settings, {
-          onOpening:  'onOpening',
-          onOpen:     'onOpen',
-          onClosing:  'onClosing',
-          onClose:    'onClose',
-          onChange:   'onChange'
-        });
-
-        element.accordion( settings );
-
-        if ( angular.isFunction( scope.onInit ) )
-        {
-          scope.onInit( element );
-        }
-      });
-    };
-  }
-
-  function SemanticAccordionGroup()
-  {
-    return {
-      restrict: 'E',
-      required: 'title',
-      transclude: true,
-      scope: {
-        /* Required */
-        title: '=',
-        /* Optional */
-        active: '='
-      },
-      template: [
-        '<div class="title" ng-class="{active: active}">',
-        '  <i class="dropdown icon"></i>',
-        '  {{ title }}',
-        '</div>',
-        '<div class="content" ng-class="{active: active}" ng-transclude>',
-        '</div>'
-      ].join('\n')
-    }
-  }
-
-})( angular.module('semantic-ui-accordion', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
-    .controller('SemanticCommentsController', ['$scope', SemanticCommentsController])
-    .directive('smComments', ['SemanticUI', SemanticComments])
-  ;
-
-  function SemanticComments(SemanticUI)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      // transclude: true,
-
-      scope: {
-        /* Required */
-        comments: '=',
-        content: '&',
-        /* Optional */
-        avatar: '&',
-        author: '&',
-        date: '&',
-        replies: '&',
-        reply: '=',
-        collapsible: '=',
-
-        onAuthor: '&',
-        onReply: '&',
-        onShowReplies: '&',
-        onHideReplies: '&'
-      },
-
-      template: [
-        '<div class="ui comments">',
-        ' <div class="comment" ng-repeat="c in comments" ng-init="$ = {comment: c}; c.$isCollapsed = true;">',
-        '  <a ng-if="avatar($)" class="avatar" ng-click="onAuthor({comment: c, $event: $event})">',
-        '    <img ng-src="{{ avatar($) }}">',
-        '  </a>',
-        '  <div class="content">',
-        '   <a class="author" ng-click="onAuthor({comment: c, $event: $event})" sm-html="author($)"></a>',
-        '   <div class="metadata">',
-        '    <span class="date" sm-time-ago="date($)"></span>',
-        '   </div>',
-        '   <div class="text" sm-html="content($)"></div>',
-        '   <div class="actions">',
-        '     <a class="reply" ng-click="onReply({comment: c, $event: $event})" ng-if="reply">Reply</a>',
-        '     <a class="show-replies" ng-if="reply && collapsible && c.$isCollapsed" href ng-click="setCollapsed(c, $event, false)" sm-html="getShowRepliesText($)"></a>',
-        '     <a class="hide-replies" ng-if="reply && collapsible && !c.$isCollapsed" href ng-click="setCollapsed(c, $event, true)" sm-html="getHideRepliesText($)"></a>',
-        '   </div>',
-        '  </div>',
-        '  <sm-comments ng-if="hasReplies($)" ng-class="{collapsed: collapsible && c.$isCollapsed}" comments="replies($)" content="content({comment: comment})" avatar="avatar({comment: comment})" author="author({comment: comment})" date="date({comment: comment})" replies="replies({comment: comment})" reply="reply" collapsible="collapsible"',
-        '     on-author="onAuthor({comment: comment, $event: $event})" on-reply="onReply({comment: comment, $event: $event})" on-show-replies="onShowReplies({comment: comment, $event: $event})" on-hide-replies="onHideReplies({comment: comment, $event: $event})"></sm-comments>',
-        ' </div>',
-        '</div>'
-      ].join('\n'),
-
-      controller: 'SemanticCommentsController',
-
-      compile: SemanticUI.RecursiveCompiler()
-
-    };
-  }
-
-  function SemanticCommentsController($scope)
-  {
-    $scope.setCollapsed = function(comment, $event, collapse)
-    {
-      var $ = {comment: comment, $event: $event};
-
-      if ( comment.$isCollapsed != collapse )
-      {
-        if ( comment.$isCollapsed )
-        {
-          if ( $scope.onShowReplies($) !== false )
-          {
-            comment.$isCollapsed = false;
-          }
-        }
-        else
-        {
-          if ( $scope.onHideReplies($) !== false )
-          {
-            comment.$isCollapsed = true;
-          }
-        }
-      }
-    };
-
-    $scope.hasReplies = function($)
-    {
-      if ( !$scope.reply )
-      {
-        return false;
-      }
-
-      var replies = $scope.replies($);
-
-      return replies && replies.length;
-    };
-
-    $scope.getReplyCount = function($)
-    {
-      if ( !$scope.reply )
-      {
-        return false;
-      }
-
-      var replies = $scope.replies($);
-
-      return replies ? replies.length : 0;
-    };
-
-    $scope.getShowRepliesText = function($)
-    {
-      var count = $scope.getReplyCount($);
-
-      return count === 0 ? '' : (count === 1 ? 'Show Reply' : 'Show Replies (' + count + ')');
-    };
-
-    $scope.getHideRepliesText = function($)
-    {
-      var count = $scope.getReplyCount($);
-
-      return count === 0 ? '' : (count === 1 ? 'Hide Reply' : 'Hide Replies (' + count + ')');
-    };
-  }
-
-})( angular.module('semantic-ui-comment', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
-    .factory('SemanticDimmerLink', ['SemanticUI', SemanticDimmerLink])
-    .directive('smDimmerBind', ['SemanticUI', SemanticDimmerBind])
-    .directive('smDimmer', ['SemanticDimmerLink', SemanticDimmer])
-  ;
-
-  var BEHAVIORS = {
-    smDimmerShow:           'show',
-    smDimmerHide:           'hide',
-    smDimmerToggle:         'toggle'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI)
-    {
-      return SemanticUI.createBehavior( directive, 'dimmer', method );
-    }]);
-  });
-
-  function SemanticDimmerBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smDimmerBind', 'dimmer' );
-  }
-
-  function SemanticDimmer(SemanticDimmerLink)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-        /* Optional */
-        visible: '=',
-        settings: '=',
-        onInit: '=',
-        /* Events */
-        onShow: '=',
-        onHide: '=',
-        onChange: '='
-      },
-
-      template: '<div class="ui dimmer" ng-transclude></div>',
-
-      link: SemanticDimmerLink
-    };
-  }
-
-  function SemanticDimmerLink(SemanticUI)
-  {
-    return function(scope, element, attributes)
-    {
-      var settings = scope.settings || {};
-
-      SemanticUI.linkSettings( scope, element, attributes, 'dimmer' );
-
-      // If the visible attribute is specified, listen to onHide and update modal when variable changes.
-      if ( attributes.visible )
-      {
-        var visibleWatcher = SemanticUI.watcher( scope, 'visible',
-          function(updated) {
-            element.dimmer( updated ? 'show' : 'hide' );
-          }
-        );
-
-        SemanticUI.onEvent( settings, 'onShow',
-          function(value) {
-            visibleWatcher.set( true );
-          }
-        );
-
-        SemanticUI.onEvent( settings, 'onHide',
-          function(value) {
-            visibleWatcher.set( false );
-          }
-        );
-      }
-
-      SemanticUI.linkEvents( scope, settings, $.fn.dimmer.settings, {
-        onShow:   'onShow',
-        onHide:   'onHide',
-        onChange: 'onChange'
-      });
-
-      element.dimmer( settings );
-
-      if ( angular.isFunction( scope.onInit ) ) {
-        scope.onInit( element );
-      }
-    };
-  }
-
-})( angular.module('semantic-ui-dimmer', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
     .factory('SemanticCheckboxLink', ['SemanticUI', SemanticCheckboxLink])
     .directive('smCheckboxBind', ['SemanticUI', SemanticCheckboxBind])
     .directive('smCheckbox', ['SemanticCheckboxLink', SemanticCheckbox])
@@ -1130,6 +785,674 @@ angular.module('semantic-ui', [
 {
 
   app
+    .factory('SemanticAccordionLink', ['SemanticUI', SemanticAccordionLink])
+    .directive('smAccordionBind', ['SemanticUI', SemanticAccordionBind])
+    .directive('smAccordion', ['SemanticAccordionLink', SemanticAccordion])
+    .directive('smAccordionGroup', SemanticAccordionGroup)
+  ;
+
+  var BEHAVIORS = {
+    smAccordionOpen:        'open',
+    smAccordionCloseOthers: 'close others',
+    smAccordionClose:       'close',
+    smAccordionToggle:      'toggle'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
+    {
+      return SemanticUI.createBehavior( directive, 'accordion', method );
+    }]);
+  });
+
+  function SemanticAccordionBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smAccordionBind', 'accordion' );
+  }
+
+  function SemanticAccordion(SemanticAccordionLink)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+        /* Optional */
+        settings: '=',
+        onInit: '=',
+        /* Events */
+        onOpening: '=',
+        onOpen: '=',
+        onClosing: '=',
+        onClose: '=',
+        onChange: '='
+      },
+
+      template: '<div class="ui accordion" ng-transclude></div>',
+
+      link: SemanticAccordionLink
+    };
+  }
+
+  function SemanticAccordionLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      element.ready(function()
+      {
+        var settings = scope.settings || {};
+
+        SemanticUI.linkSettings( scope, element, attributes, 'accordion', true );
+
+        SemanticUI.linkEvents( scope, settings, $.fn.accordion.settings, {
+          onOpening:  'onOpening',
+          onOpen:     'onOpen',
+          onClosing:  'onClosing',
+          onClose:    'onClose',
+          onChange:   'onChange'
+        });
+
+        element.accordion( settings );
+
+        if ( angular.isFunction( scope.onInit ) )
+        {
+          scope.onInit( element );
+        }
+      });
+    };
+  }
+
+  function SemanticAccordionGroup()
+  {
+    return {
+      restrict: 'E',
+      required: 'title',
+      transclude: true,
+      scope: {
+        /* Required */
+        title: '=',
+        /* Optional */
+        active: '='
+      },
+      template: [
+        '<div class="title" ng-class="{active: active}">',
+        '  <i class="dropdown icon"></i>',
+        '  {{ title }}',
+        '</div>',
+        '<div class="content" ng-class="{active: active}" ng-transclude>',
+        '</div>'
+      ].join('\n')
+    }
+  }
+
+})( angular.module('semantic-ui-accordion', ['semantic-ui-core']) );
+
+(function(app)
+{
+
+  app
+    .controller('SemanticCommentsController', ['$scope', SemanticCommentsController])
+    .directive('smComments', ['SemanticUI', SemanticComments])
+  ;
+
+  function SemanticComments(SemanticUI)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      // transclude: true,
+
+      scope: {
+        /* Required */
+        comments: '=',
+        content: '&',
+        /* Optional */
+        avatar: '&',
+        author: '&',
+        date: '&',
+        replies: '&',
+        reply: '=',
+        collapsible: '=',
+
+        onAuthor: '&',
+        onReply: '&',
+        onShowReplies: '&',
+        onHideReplies: '&'
+      },
+
+      template: [
+        '<div class="ui comments">',
+        ' <div class="comment" ng-repeat="c in comments" ng-init="$ = {comment: c}; c.$isCollapsed = true;">',
+        '  <a ng-if="avatar($)" class="avatar" ng-click="onAuthor({comment: c, $event: $event})">',
+        '    <img ng-src="{{ avatar($) }}">',
+        '  </a>',
+        '  <div class="content">',
+        '   <a class="author" ng-click="onAuthor({comment: c, $event: $event})" sm-html="author($)"></a>',
+        '   <div class="metadata">',
+        '    <span class="date" sm-time-ago="date($)"></span>',
+        '   </div>',
+        '   <div class="text" sm-html="content($)"></div>',
+        '   <div class="actions">',
+        '     <a class="reply" ng-click="onReply({comment: c, $event: $event})" ng-if="reply">Reply</a>',
+        '     <a class="show-replies" ng-if="reply && collapsible && c.$isCollapsed" href ng-click="setCollapsed(c, $event, false)" sm-html="getShowRepliesText($)"></a>',
+        '     <a class="hide-replies" ng-if="reply && collapsible && !c.$isCollapsed" href ng-click="setCollapsed(c, $event, true)" sm-html="getHideRepliesText($)"></a>',
+        '   </div>',
+        '  </div>',
+        '  <sm-comments ng-if="hasReplies($)" ng-class="{collapsed: collapsible && c.$isCollapsed}" comments="replies($)" content="content({comment: comment})" avatar="avatar({comment: comment})" author="author({comment: comment})" date="date({comment: comment})" replies="replies({comment: comment})" reply="reply" collapsible="collapsible"',
+        '     on-author="onAuthor({comment: comment, $event: $event})" on-reply="onReply({comment: comment, $event: $event})" on-show-replies="onShowReplies({comment: comment, $event: $event})" on-hide-replies="onHideReplies({comment: comment, $event: $event})"></sm-comments>',
+        ' </div>',
+        '</div>'
+      ].join('\n'),
+
+      controller: 'SemanticCommentsController',
+
+      compile: SemanticUI.RecursiveCompiler()
+
+    };
+  }
+
+  function SemanticCommentsController($scope)
+  {
+    $scope.setCollapsed = function(comment, $event, collapse)
+    {
+      var $ = {comment: comment, $event: $event};
+
+      if ( comment.$isCollapsed != collapse )
+      {
+        if ( comment.$isCollapsed )
+        {
+          if ( $scope.onShowReplies($) !== false )
+          {
+            comment.$isCollapsed = false;
+          }
+        }
+        else
+        {
+          if ( $scope.onHideReplies($) !== false )
+          {
+            comment.$isCollapsed = true;
+          }
+        }
+      }
+    };
+
+    $scope.hasReplies = function($)
+    {
+      if ( !$scope.reply )
+      {
+        return false;
+      }
+
+      var replies = $scope.replies($);
+
+      return replies && replies.length;
+    };
+
+    $scope.getReplyCount = function($)
+    {
+      if ( !$scope.reply )
+      {
+        return false;
+      }
+
+      var replies = $scope.replies($);
+
+      return replies ? replies.length : 0;
+    };
+
+    $scope.getShowRepliesText = function($)
+    {
+      var count = $scope.getReplyCount($);
+
+      return count === 0 ? '' : (count === 1 ? 'Show Reply' : 'Show Replies (' + count + ')');
+    };
+
+    $scope.getHideRepliesText = function($)
+    {
+      var count = $scope.getReplyCount($);
+
+      return count === 0 ? '' : (count === 1 ? 'Hide Reply' : 'Hide Replies (' + count + ')');
+    };
+  }
+
+})( angular.module('semantic-ui-comment', ['semantic-ui-core', 'semantic-ui-timeago']) );
+
+(function(app)
+{
+
+  app
+    .factory('SemanticDimmerLink', ['SemanticUI', SemanticDimmerLink])
+    .directive('smDimmerBind', ['SemanticUI', SemanticDimmerBind])
+    .directive('smDimmer', ['SemanticDimmerLink', SemanticDimmer])
+  ;
+
+  var BEHAVIORS = {
+    smDimmerShow:           'show',
+    smDimmerHide:           'hide',
+    smDimmerToggle:         'toggle'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
+    {
+      return SemanticUI.createBehavior( directive, 'dimmer', method );
+    }]);
+  });
+
+  function SemanticDimmerBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smDimmerBind', 'dimmer' );
+  }
+
+  function SemanticDimmer(SemanticDimmerLink)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+        /* Optional */
+        visible: '=',
+        settings: '=',
+        onInit: '=',
+        /* Events */
+        onShow: '=',
+        onHide: '=',
+        onChange: '='
+      },
+
+      template: '<div class="ui dimmer" ng-transclude></div>',
+
+      link: SemanticDimmerLink
+    };
+  }
+
+  function SemanticDimmerLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
+
+      SemanticUI.linkSettings( scope, element, attributes, 'dimmer' );
+
+      // If the visible attribute is specified, listen to onHide and update modal when variable changes.
+      if ( attributes.visible )
+      {
+        var visibleWatcher = SemanticUI.watcher( scope, 'visible',
+          function(updated) {
+            element.dimmer( updated ? 'show' : 'hide' );
+          }
+        );
+
+        SemanticUI.onEvent( settings, 'onShow',
+          function(value) {
+            visibleWatcher.set( true );
+          }
+        );
+
+        SemanticUI.onEvent( settings, 'onHide',
+          function(value) {
+            visibleWatcher.set( false );
+          }
+        );
+      }
+
+      SemanticUI.linkEvents( scope, settings, $.fn.dimmer.settings, {
+        onShow:   'onShow',
+        onHide:   'onHide',
+        onChange: 'onChange'
+      });
+
+      element.dimmer( settings );
+
+      if ( angular.isFunction( scope.onInit ) ) {
+        scope.onInit( element );
+      }
+    };
+  }
+
+})( angular.module('semantic-ui-dimmer', ['semantic-ui-core']) );
+
+(function(app)
+{
+
+  app
+    .controller('SemanticDropdownController', ['$scope', SemanticDropdownController])
+    .factory('SemanticDropdownLink', ['SemanticUI', '$timeout', SemanticDropdownLink])
+    .directive('smDropdownBind', ['SemanticUI', SemanticDropdownBind])
+    .directive('smDropdown', ['SemanticDropdownLink', SemanticDropdown])
+  ;
+
+  var BEHAVIORS = {
+    smDropdownToggle:               'toggle',
+    smDropdownShow:                 'show',
+    smDropdownHide:                 'hide',
+    smDropdownClear:                'clear',
+    smDropdownHideOthers:           'hide others',
+    smDropdownRestoreDefaults:      'restore defaults',
+    smDropdownRestoreDefaultText:   'restore default text',
+    smDropdownRestoreDefaultValue:  'restore default value',
+    smDropdownSaveDefaults:         'save defaults',
+    smDropdownSetSelected:          'set selected',
+    smDropdownSetText:              'set text',
+    smDropdownSetValue:             'set value',
+    smDropdownBindTouchEvents:      'bind touch events',
+    smDropdownMouseEvents:          'mouse events',
+    smDropdownBindIntent:           'bind intent',
+    smDropdownUnbindIntent:         'unbind intent',
+    smDropdownSetActive:            'set active',
+    smDropdownSetVisible:           'set visible',
+    smDropdownRemoveActive:         'remove active',
+    smDropdownRemoveVisible:        'remove visible'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
+    {
+      return SemanticUI.createBehavior( directive, 'dropdown', method );
+    }]);
+  });
+
+  function SemanticDropdownBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smDropdownBind', 'dropdown' );
+  }
+
+  function SemanticDropdown(SemanticDropdownLink)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+        /* Required */
+        model: '=',
+        items: '=',
+        label: '&',
+        value: '&',
+        /* Optional */
+        settings: '=',
+        defaultText: '=',
+        onInit: '=',
+        emptyValue: '=',
+        /* Events */
+        onChange: '=',
+        onAdd: '=',
+        onRemove: '=',
+        onLabelCreate: '=',
+        onLabelSelect: '=',
+        onNoResults: '=',
+        onShow: '=',
+        onHide: '='
+      },
+
+      template: [
+        '<div class="ui dropdown">',
+          '<i class="dropdown icon"></i>',
+          '<div class="text" ng-class="::{default: hasDefault()}" sm-html="::getDefaultText()"></div>',
+          '<sm-flat-menu></sm-flat-menu>',
+        '</div>'
+      ].join('\n'),
+
+      controller: 'SemanticDropdownController',
+
+      link: SemanticDropdownLink
+    };
+  }
+
+  function SemanticDropdownController($scope)
+  {
+    var hashMap = {};
+
+    // Returns the value to be placed in the data-value attribute. If the computed value has a $$hashKey,
+    // then return the hashKey. This enables the exact instance of the item to be set to the model.
+    $scope.getValue = function(item)
+    {
+      // Computes the value given the expression in the 'value' attribute
+      return $scope.getKey( $scope.value( {item: item} ) );
+    };
+
+    $scope.getKey = function(value)
+    {
+      return (value ? value.$$hashKey || value : value) + '';
+    };
+
+    $scope.isEmpty = function()
+    {
+      return !$scope.model || $scope.model.length === 0;
+    };
+
+    // Translates the value (the model, an item of the model, or a variable
+    // created from the value function) into the key that's stored on the dropdown.
+    $scope.translateValue = function(value)
+    {
+      var translated = $scope.getKey( value );
+      var matching = $scope.findMatchingItem( translated );
+
+      if ( angular.isDefined( matching ) )
+      {
+        return $scope.getValue( matching );
+      }
+    };
+
+    // Determines whether this dropdown should currently display the default text.
+    $scope.hasDefault = function()
+    {
+      return ( $scope.defaultText && $scope.isEmpty() );
+    };
+
+    // Gets the current text for the drop down. If the current model has a value which is found
+    // in the items, the appropriate item's label is displayed. Otherwise return the default text.
+    $scope.getDefaultText = function()
+    {
+      return ( $scope.isEmpty() ? $scope.defaultText : '' );
+    };
+
+    // Finds an item instance that has the exact same value as the given value.
+    $scope.findMatchingItem = function(value)
+    {
+      return hashMap[ value ];
+    };
+
+    // Updates the hash map providing a mapping from values to items.
+    $scope.updateHashMap = function( items )
+    {
+      hashMap = {};
+
+      angular.forEach( items, function(item)
+      {
+        hashMap[ $scope.getValue( item ) ] = item;
+      });
+    };
+  }
+
+  function SemanticDropdownLink(SemanticUI, $timeout)
+  {
+    return function (scope, element, attributes) {
+      var applyValue = function (value) {
+        $timeout(function () {
+          if (element.dropdown('is multiple')) {
+            if (value instanceof Array) {
+              var translatedValue = [];
+
+              for (var i = 0; i < value.length; i++) {
+                var translated = scope.translateValue(value[ i ]);
+
+                if (angular.isDefined(translated)) {
+                  translatedValue.push(translated);
+                }
+              }
+
+              element.dropdown('set exactly', translatedValue);
+            }
+          }
+          else {
+            element.dropdown('set selected', scope.translateValue(value));
+          }
+        }, 0);
+      };
+
+      SemanticUI.setDefaultFunction( scope, 'label', attributes, function(locals){return locals.item} );
+      SemanticUI.setDefaultFunction( scope, 'value', attributes, function(locals){return locals.item} );
+
+      element.ready(function()
+      {
+        var settings = scope.settings || {};
+        var ignoreChange = true;
+
+        SemanticUI.linkSettings( scope, element, attributes, 'dropdown', true );
+
+        SemanticUI.triggerChange( scope, 'model', element, true );
+
+        // Returns the model on the scope, converting it to an array if it's not one.
+        var modelArray = function() {
+          if ( !(scope.model instanceof Array) ) {
+            scope.model = scope.model ? [ scope.model ] : [];
+          }
+          return scope.model;
+        };
+
+        // When the model changes, set the value on the drop down
+        var modelWatcher = SemanticUI.watcher( scope, 'model',
+          function(updated) {
+            applyValue( updated );
+          }
+        , null, true, true );
+
+        // Inject an onChange function into the settings which sets the model value
+        // and causes the scope to be updated.
+        SemanticUI.onEvent( settings, 'onChange',
+          function(value) {
+            if ( ignoreChange ) {
+              return;
+            }
+            if ( !element.dropdown('is multiple') ) {
+              var mapped = scope.findMatchingItem( value );
+              if (angular.isDefined(mapped)) {
+                var mappedValue = scope.value({item: mapped});
+                modelWatcher.set( mappedValue );
+              } else if ( element.dropdown('setting', 'allowAdditions') ) {
+                modelWatcher.set( value );
+              } else {
+                modelWatcher.set( scope.emptyValue );
+              }
+            }
+          }
+        );
+
+        // When a new item is selected for multiple selection dropdowns, add it to the model.
+        SemanticUI.onEvent( settings, 'onAdd',
+          function(value) {
+            if ( ignoreChange ) {
+              return;
+            }
+            var mapped = scope.findMatchingItem( value );
+            if (angular.isDefined(mapped)) {
+              var mappedValue = scope.value({item: mapped});
+              var indexOf = $.inArray( mappedValue, modelArray() );
+              if ( indexOf === -1 ) {
+                scope.model.push( mappedValue );
+                modelWatcher.update();
+              }
+            } else if ( element.dropdown('setting', 'allowAdditions') ) {
+              scope.model.push( value );
+              modelWatcher.update();
+            }
+          }
+        );
+
+        // When an item is deselected for multiple selection dropdowns, remove it from the model.
+        SemanticUI.onEvent( settings, 'onRemove',
+          function(value) {
+            if ( ignoreChange ) {
+              return;
+            }
+            var mapped = scope.findMatchingItem( value );
+            if (angular.isDefined(mapped)) {
+              var mappedValue = scope.value({item: mapped});
+              var indexOf = $.inArray( mappedValue, modelArray() );
+              if ( indexOf !== -1 ) {
+                scope.model.splice( indexOf, 1 );
+                modelWatcher.update();
+              }
+            } else {
+              var indexOf = $.inArray( value, modelArray() );
+              if ( indexOf !== -1 ) {
+                scope.model.splice( indexOf, 1 );
+                modelWatcher.update();
+              }
+            }
+          }
+        );
+
+        SemanticUI.linkEvents( scope, settings, $.fn.dropdown.settings, {
+          onChange:       'onChange',
+          onAdd:          'onAdd',
+          onRemove:       'onRemove',
+          onLabelCreate:  'onLabelCreate',
+          onLabelSelect:  'onLabelSelect',
+          onNoResults:    'onNoResults',
+          onShow:         'onShow',
+          onHide:         'onHide'
+        });
+
+        // When items changes, rebuild the hashMap & reapply the values.
+        scope.$watch( 'items', function( updated )
+        {
+          scope.updateHashMap( scope.items );
+          applyValue( scope.model );
+
+        }, true );
+
+        // Initialize the element with the given settings.
+        element.dropdown( settings );
+
+        // Update the hashmap with items
+        scope.updateHashMap( scope.items );
+
+        // Apply current value
+        applyValue( scope.model );
+
+        // Save defaults
+        element.dropdown( 'save defaults' );
+
+        // Stop ignoring changes!
+        ignoreChange = false;
+
+        // Notify initialized callback.
+        if ( angular.isFunction( scope.onInit ) )
+        {
+          scope.onInit( element );
+        }
+
+      });
+    };
+  }
+
+})( angular.module('semantic-ui-dropdown', ['semantic-ui-core']) );
+
+(function(app)
+{
+
+  app
     .factory('SemanticEmbedLink', ['SemanticUI', SemanticEmbedLink])
     .directive('smEmbedBind', ['SemanticUI', SemanticEmbedBind])
     .directive('smEmbed', ['SemanticEmbedLink', SemanticEmbed])
@@ -1218,115 +1541,6 @@ angular.module('semantic-ui', [
 
 
 })( angular.module('semantic-ui-embed', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
-    .factory('SemanticModalLink', ['SemanticUI', SemanticModalLink])
-    .directive('smModalBind', ['SemanticUI', SemanticModalBind])
-    .directive('smModal', ['SemanticModalLink', SemanticModal])
-  ;
-
-  var BEHAVIORS = {
-    smModalShow:        'show',
-    smModalHide:        'hide',
-    smModalToggle:      'toggle',
-    smModalRefresh:     'refresh',
-    smModalShowDimmer:  'show dimmer',
-    smModalHideDimmer:  'hide dimmer',
-    smModalHideOthers:  'hide others',
-    smModalHideAll:     'hide all',
-    smModalCacheSizes:  'cache sizes',
-    smModalSetActive:   'set active'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI)
-    {
-      return SemanticUI.createBehavior( directive, 'modal', method );
-    }]);
-  });
-
-  function SemanticModalBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smModalBind', 'modal' );
-  }
-
-  function SemanticModal(SemanticModalLink)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-        /* Optional */
-        visible: '=',
-        settings: '=',
-        onInit: '=',
-        /* Events */
-        onShow: '=',
-        onVisible: '=',
-        onHide: '=',
-        onHidden: '=',
-        onApprove: '=',
-        onDeny: '='
-      },
-
-      template: '<div class="ui modal" ng-transclude></div>',
-
-      link: SemanticModalLink
-    }
-  }
-
-  function SemanticModalLink(SemanticUI)
-  {
-    return function(scope, element, attributes)
-    {
-      var settings = scope.settings || {};
-
-      SemanticUI.linkSettings( scope, element, attributes, 'modal' );
-
-      // If the visible attribute is specified, listen to onHide and update modal when variable changes.
-      if ( attributes.visible )
-      {
-        var visibleWatcher = SemanticUI.watcher( scope, 'visible',
-          function(updated) {
-            element.modal( updated ? 'show' : 'hide' );
-          }
-        );
-
-        SemanticUI.onEvent( settings, 'onHide',
-          function() {
-            visibleWatcher.set( false );
-          }
-        );
-      }
-
-      SemanticUI.linkEvents( scope, settings, $.fn.modal.settings, {
-        onShow:    'onShow',
-        onVisible: 'onVisible',
-        onHide:    'onHide',
-        onHidden:  'onHidden',
-        onApprove: 'onApprove',
-        onDeny:    'onDeny'
-      });
-
-      // Initialize the element with the given settings.
-      element.modal( settings );
-
-      if ( angular.isFunction( scope.onInit ) ) {
-        scope.onInit( element );
-      }
-    };
-  }
-
-})( angular.module('semantic-ui-modal', ['semantic-ui-core']) );
 
 (function(app)
 {
@@ -1483,6 +1697,121 @@ angular.module('semantic-ui', [
 
 
 })( angular.module('semantic-ui-menu', ['semantic-ui-core']) );
+
+(function(app)
+{
+
+  app
+    .factory('SemanticModalLink', ['SemanticUI', SemanticModalLink])
+    .directive('smModalBind', ['SemanticUI', SemanticModalBind])
+    .directive('smModal', ['SemanticModalLink', SemanticModal])
+  ;
+
+  var BEHAVIORS = {
+    smModalShow:        'show',
+    smModalHide:        'hide',
+    smModalToggle:      'toggle',
+    smModalRefresh:     'refresh',
+    smModalShowDimmer:  'show dimmer',
+    smModalHideDimmer:  'hide dimmer',
+    smModalHideOthers:  'hide others',
+    smModalHideAll:     'hide all',
+    smModalCacheSizes:  'cache sizes',
+    smModalSetActive:   'set active'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
+    {
+      return SemanticUI.createBehavior( directive, 'modal', method );
+    }]);
+  });
+
+  function SemanticModalBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smModalBind', 'modal' );
+  }
+
+  function SemanticModal(SemanticModalLink)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+        /* Optional */
+        visible: '=',
+        settings: '=',
+        onInit: '=',
+        /* Events */
+        onShow: '=',
+        onVisible: '=',
+        onHide: '=',
+        onHidden: '=',
+        onApprove: '=',
+        onDeny: '='
+      },
+
+      template: '<div class="ui modal" ng-transclude></div>',
+
+      link: SemanticModalLink
+    }
+  }
+
+  function SemanticModalLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
+
+      SemanticUI.linkSettings( scope, element, attributes, 'modal' );
+
+      // If the visible attribute is specified, listen to onHide and update modal when variable changes.
+      if ( attributes.visible )
+      {
+        var visibleWatcher = SemanticUI.watcher( scope, 'visible',
+          function(updated) {
+            element.modal( updated ? 'show' : 'hide' );
+          }
+        );
+
+        SemanticUI.onEvent( settings, 'onHide',
+          function() {
+            visibleWatcher.set( false );
+          }
+        );
+
+        SemanticUI.onEvent( settings, 'onShow',
+          function() {
+            visibleWatcher.set( true );
+          }
+        );
+      }
+
+      SemanticUI.linkEvents( scope, settings, $.fn.modal.settings, {
+        onShow:    'onShow',
+        onVisible: 'onVisible',
+        onHide:    'onHide',
+        onHidden:  'onHidden',
+        onApprove: 'onApprove',
+        onDeny:    'onDeny'
+      });
+
+      // Initialize the element with the given settings.
+      element.modal( settings );
+
+      if ( angular.isFunction( scope.onInit ) ) {
+        scope.onInit( element );
+      }
+    };
+  }
+
+})( angular.module('semantic-ui-modal', ['semantic-ui-core']) );
 
 (function(app)
 {
@@ -1870,329 +2199,6 @@ angular.module('semantic-ui', [
 {
 
   app
-    .controller('SemanticDropdownController', ['$scope', SemanticDropdownController])
-    .factory('SemanticDropdownLink', ['SemanticUI', '$timeout', SemanticDropdownLink])
-    .directive('smDropdownBind', ['SemanticUI', SemanticDropdownBind])
-    .directive('smDropdown', ['SemanticDropdownLink', SemanticDropdown])
-  ;
-
-  var BEHAVIORS = {
-    smDropdownToggle:               'toggle',
-    smDropdownShow:                 'show',
-    smDropdownHide:                 'hide',
-    smDropdownClear:                'clear',
-    smDropdownHideOthers:           'hide others',
-    smDropdownRestoreDefaults:      'restore defaults',
-    smDropdownRestoreDefaultText:   'restore default text',
-    smDropdownRestoreDefaultValue:  'restore default value',
-    smDropdownSaveDefaults:         'save defaults',
-    smDropdownSetSelected:          'set selected',
-    smDropdownSetText:              'set text',
-    smDropdownSetValue:             'set value',
-    smDropdownBindTouchEvents:      'bind touch events',
-    smDropdownMouseEvents:          'mouse events',
-    smDropdownBindIntent:           'bind intent',
-    smDropdownUnbindIntent:         'unbind intent',
-    smDropdownSetActive:            'set active',
-    smDropdownSetVisible:           'set visible',
-    smDropdownRemoveActive:         'remove active',
-    smDropdownRemoveVisible:        'remove visible'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI)
-    {
-      return SemanticUI.createBehavior( directive, 'dropdown', method );
-    }]);
-  });
-
-  function SemanticDropdownBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smDropdownBind', 'dropdown' );
-  }
-
-  function SemanticDropdown(SemanticDropdownLink)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-        /* Required */
-        model: '=',
-        items: '=',
-        label: '&',
-        value: '&',
-        /* Optional */
-        settings: '=',
-        defaultText: '=',
-        onInit: '=',
-        emptyValue: '=',
-        /* Events */
-        onChange: '=',
-        onAdd: '=',
-        onRemove: '=',
-        onLabelCreate: '=',
-        onLabelSelect: '=',
-        onNoResults: '=',
-        onShow: '=',
-        onHide: '='
-      },
-
-      template: [
-        '<div class="ui dropdown">',
-          '<i class="dropdown icon"></i>',
-          '<div class="text" ng-class="::{default: hasDefault()}" sm-html="::getDefaultText()"></div>',
-          '<sm-flat-menu></sm-flat-menu>',
-        '</div>'
-      ].join('\n'),
-
-      controller: 'SemanticDropdownController',
-
-      link: SemanticDropdownLink
-    };
-  }
-
-  function SemanticDropdownController($scope)
-  {
-    var hashMap = {};
-
-    // Returns the value to be placed in the data-value attribute. If the computed value has a $$hashKey,
-    // then return the hashKey. This enables the exact instance of the item to be set to the model.
-    $scope.getValue = function(item)
-    {
-      // Computes the value given the expression in the 'value' attribute
-      return $scope.getKey( $scope.value( {item: item} ) );
-    };
-
-    $scope.getKey = function(value)
-    {
-      return (value ? value.$$hashKey || value : value) + '';
-    };
-
-    $scope.isEmpty = function()
-    {
-      return !$scope.model || $scope.model.length === 0;
-    };
-
-    // Translates the value (the model, an item of the model, or a variable
-    // created from the value function) into the key that's stored on the dropdown.
-    $scope.translateValue = function(value)
-    {
-      var translated = $scope.getKey( value );
-      var matching = $scope.findMatchingItem( translated );
-
-      if ( angular.isDefined( matching ) )
-      {
-        return $scope.getValue( matching );
-      }
-    };
-
-    // Determines whether this dropdown should currently display the default text.
-    $scope.hasDefault = function()
-    {
-      return ( $scope.defaultText && $scope.isEmpty() );
-    };
-
-    // Gets the current text for the drop down. If the current model has a value which is found
-    // in the items, the appropriate item's label is displayed. Otherwise return the default text.
-    $scope.getDefaultText = function()
-    {
-      return ( $scope.isEmpty() ? $scope.defaultText : '' );
-    };
-
-    // Finds an item instance that has the exact same value as the given value.
-    $scope.findMatchingItem = function(value)
-    {
-      return hashMap[ value ];
-    };
-
-    // Updates the hash map providing a mapping from values to items.
-    $scope.updateHashMap = function( items )
-    {
-      hashMap = {};
-
-      angular.forEach( items, function(item)
-      {
-        hashMap[ $scope.getValue( item ) ] = item;
-      });
-    };
-  }
-
-  function SemanticDropdownLink(SemanticUI, $timeout)
-  {
-    return function (scope, element, attributes) {
-      var applyValue = function (value) {
-        $timeout(function () {
-          if (element.dropdown('is multiple')) {
-            if (value instanceof Array) {
-              var translatedValue = [];
-
-              for (var i = 0; i < value.length; i++) {
-                var translated = scope.translateValue(value[ i ]);
-
-                if (angular.isDefined(translated)) {
-                  translatedValue.push(translated);
-                }
-              }
-
-              element.dropdown('set exactly', translatedValue);
-            }
-          }
-          else {
-            element.dropdown('set selected', scope.translateValue(value));
-          }
-        }, 0);
-      };
-
-      SemanticUI.setDefaultFunction( scope, 'label', attributes, function(locals){return locals.item} );
-      SemanticUI.setDefaultFunction( scope, 'value', attributes, function(locals){return locals.item} );
-
-      element.ready(function()
-      {
-        var settings = scope.settings || {};
-        var ignoreChange = true;
-
-        SemanticUI.linkSettings( scope, element, attributes, 'dropdown', true );
-
-        SemanticUI.triggerChange( scope, 'model', element, true );
-
-        // Returns the model on the scope, converting it to an array if it's not one.
-        var modelArray = function() {
-          if ( !(scope.model instanceof Array) ) {
-            scope.model = scope.model ? [ scope.model ] : [];
-          }
-          return scope.model;
-        };
-
-        // When the model changes, set the value on the drop down
-        var modelWatcher = SemanticUI.watcher( scope, 'model',
-          function(updated) {
-            applyValue( updated );
-          }
-        , null, true, true );
-
-        // Inject an onChange function into the settings which sets the model value
-        // and causes the scope to be updated.
-        SemanticUI.onEvent( settings, 'onChange',
-          function(value) {
-            if ( ignoreChange ) {
-              return;
-            }
-            if ( !element.dropdown('is multiple') ) {
-              var mapped = scope.findMatchingItem( value );
-              if (angular.isDefined(mapped)) {
-                var mappedValue = scope.value({item: mapped});
-                modelWatcher.set( mappedValue );
-              } else if ( element.dropdown('setting', 'allowAdditions') ) {
-                modelWatcher.set( value );
-              } else {
-                modelWatcher.set( scope.emptyValue );
-              }
-            }
-          }
-        );
-
-        // When a new item is selected for multiple selection dropdowns, add it to the model.
-        SemanticUI.onEvent( settings, 'onAdd',
-          function(value) {
-            if ( ignoreChange ) {
-              return;
-            }
-            var mapped = scope.findMatchingItem( value );
-            if (angular.isDefined(mapped)) {
-              var mappedValue = scope.value({item: mapped});
-              var indexOf = $.inArray( mappedValue, modelArray() );
-              if ( indexOf === -1 ) {
-                scope.model.push( mappedValue );
-                modelWatcher.update();
-              }
-            } else if ( element.dropdown('setting', 'allowAdditions') ) {
-              scope.model.push( value );
-              modelWatcher.update();
-            }
-          }
-        );
-
-        // When an item is deselected for multiple selection dropdowns, remove it from the model.
-        SemanticUI.onEvent( settings, 'onRemove',
-          function(value) {
-            if ( ignoreChange ) {
-              return;
-            }
-            var mapped = scope.findMatchingItem( value );
-            if (angular.isDefined(mapped)) {
-              var mappedValue = scope.value({item: mapped});
-              var indexOf = $.inArray( mappedValue, modelArray() );
-              if ( indexOf !== -1 ) {
-                scope.model.splice( indexOf, 1 );
-                modelWatcher.update();
-              }
-            } else {
-              var indexOf = $.inArray( value, modelArray() );
-              if ( indexOf !== -1 ) {
-                scope.model.splice( indexOf, 1 );
-                modelWatcher.update();
-              }
-            }
-          }
-        );
-
-        SemanticUI.linkEvents( scope, settings, $.fn.dropdown.settings, {
-          onChange:       'onChange',
-          onAdd:          'onAdd',
-          onRemove:       'onRemove',
-          onLabelCreate:  'onLabelCreate',
-          onLabelSelect:  'onLabelSelect',
-          onNoResults:    'onNoResults',
-          onShow:         'onShow',
-          onHide:         'onHide'
-        });
-
-        // When items changes, rebuild the hashMap & reapply the values.
-        scope.$watch( 'items', function( updated )
-        {
-          scope.updateHashMap( scope.items );
-          applyValue( scope.model );
-
-        }, true );
-
-        // Initialize the element with the given settings.
-        element.dropdown( settings );
-
-        // Update the hashmap with items
-        scope.updateHashMap( scope.items );
-
-        // Apply current value
-        applyValue( scope.model );
-
-        // Save defaults
-        element.dropdown( 'save defaults' );
-
-        // Stop ignoring changes!
-        ignoreChange = false;
-
-        // Notify initialized callback.
-        if ( angular.isFunction( scope.onInit ) )
-        {
-          scope.onInit( element );
-        }
-
-      });
-    };
-  }
-
-})( angular.module('semantic-ui-dropdown', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
     .factory('SemanticRatingLink', ['SemanticUI', SemanticRatingLink])
     .directive('smRatingBind', ['SemanticUI', SemanticRatingBind])
     .directive('smRating', ['SemanticRatingLink', SemanticRating])
@@ -2433,98 +2439,6 @@ angular.module('semantic-ui', [
 {
 
   app
-    .factory('SemanticShapeLink', ['SemanticUI', SemanticShapeLink])
-    .directive('smShapeBind', ['SemanticUI', SemanticShapeBind])
-    .directive('smShape', ['SemanticShapeLink', SemanticShape])
-  ;
-
-  var BEHAVIORS = {
-    smShapeFlipUp:          'flip up',
-    smShapeFlipDown:        'flip down',
-    smShapeFlipLeft:        'flip left',
-    smShapeFlipRight:       'flip right',
-    smShapeFlipOver:        'flip over',
-    smShapeFlipBack:        'flip back',
-    smShapeSetNextSide:     'set next side',
-    smShapeReset:           'reset',
-    smShapeQueue:           'queue',
-    smShapeRepaint:         'repaint',
-    smShapeSetDefaultSide:  'set default side',
-    smShapeSetStageSize:    'set stage size',
-    smShapeRefresh:         'refresh'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI)
-    {
-      return SemanticUI.createBehavior( directive, 'shape', method );
-    }]);
-  });
-
-  function SemanticShapeBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smShapeBind', 'shape' );
-  }
-
-  function SemanticShape(SemanticShapeLink)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-
-        settings: '=',
-        onInit: '=',
-        /* Events */
-        onBeforeChange: '=',
-        onChange: '=',
-      },
-
-      template: [
-        '<div class="ui shape">',
-        ' <div class="sides" ng-transclude>',
-        ' </div>',
-        '</div>'
-      ].join('\n'),
-
-      link: SemanticShapeLink
-
-    };
-  }
-
-  function SemanticShapeLink(SemanticUI)
-  {
-    return function(scope, element, attributes)
-    {
-      var settings = scope.settings || {};
-
-      SemanticUI.linkSettings( scope, element, attributes, 'shape' );
-
-      SemanticUI.linkEvents( scope, settings, $.fn.shape.settings, {
-        onBeforeChange:   'onBeforeChange',
-        onChange:         'onChange'
-      });
-
-      element.shape( settings );
-
-      if ( angular.isFunction( scope.onInit ) ) {
-        scope.onInit( element );
-      }
-    };
-  }
-
-})( angular.module('semantic-ui-shape', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
     .factory('SemanticSidebarLink', ['SemanticUI', SemanticSidebarLink])
     .directive('smSidebarBind', ['SemanticUI', SemanticSidebarBind])
     .directive('smSidebar', ['SemanticSidebarLink', SemanticSidebar])
@@ -2650,6 +2564,98 @@ angular.module('semantic-ui', [
   }
 
 })( angular.module('semantic-ui-sidebar', ['semantic-ui-core']) );
+
+(function(app)
+{
+
+  app
+    .factory('SemanticShapeLink', ['SemanticUI', SemanticShapeLink])
+    .directive('smShapeBind', ['SemanticUI', SemanticShapeBind])
+    .directive('smShape', ['SemanticShapeLink', SemanticShape])
+  ;
+
+  var BEHAVIORS = {
+    smShapeFlipUp:          'flip up',
+    smShapeFlipDown:        'flip down',
+    smShapeFlipLeft:        'flip left',
+    smShapeFlipRight:       'flip right',
+    smShapeFlipOver:        'flip over',
+    smShapeFlipBack:        'flip back',
+    smShapeSetNextSide:     'set next side',
+    smShapeReset:           'reset',
+    smShapeQueue:           'queue',
+    smShapeRepaint:         'repaint',
+    smShapeSetDefaultSide:  'set default side',
+    smShapeSetStageSize:    'set stage size',
+    smShapeRefresh:         'refresh'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
+    {
+      return SemanticUI.createBehavior( directive, 'shape', method );
+    }]);
+  });
+
+  function SemanticShapeBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smShapeBind', 'shape' );
+  }
+
+  function SemanticShape(SemanticShapeLink)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+
+        settings: '=',
+        onInit: '=',
+        /* Events */
+        onBeforeChange: '=',
+        onChange: '=',
+      },
+
+      template: [
+        '<div class="ui shape">',
+        ' <div class="sides" ng-transclude>',
+        ' </div>',
+        '</div>'
+      ].join('\n'),
+
+      link: SemanticShapeLink
+
+    };
+  }
+
+  function SemanticShapeLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
+
+      SemanticUI.linkSettings( scope, element, attributes, 'shape' );
+
+      SemanticUI.linkEvents( scope, settings, $.fn.shape.settings, {
+        onBeforeChange:   'onBeforeChange',
+        onChange:         'onChange'
+      });
+
+      element.shape( settings );
+
+      if ( angular.isFunction( scope.onInit ) ) {
+        scope.onInit( element );
+      }
+    };
+  }
+
+})( angular.module('semantic-ui-shape', ['semantic-ui-core']) );
 
 (function(app)
 {
