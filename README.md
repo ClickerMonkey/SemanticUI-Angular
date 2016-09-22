@@ -16,7 +16,7 @@ Like Semantic UI, you can include only the modules you need - or all of them.
 - [semantic-ui-core](src/sm-core.js) (requirement of following modules)
 - [semantic-ui-accordion](src/accordion/sm-accordion.js)
 - [semantic-ui-checkbox](src/checkbox/sm-checkbox.js)
-- [semantic-ui-radio](src/radio/sm-radio.js)
+- [semantic-ui-radio](src/checkbox/sm-radio.js)
 - [semantic-ui-comment](src/comment/sm-comment.js) (requires `semantic-ui-timeago`)
 - [semantic-ui-dimmer](src/dimmer/sm-dimmer.js)
 - [semantic-ui-dropdown](src/dropdown/sm-dropdown.js)
