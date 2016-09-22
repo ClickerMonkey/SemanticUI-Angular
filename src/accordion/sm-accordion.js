@@ -1,11 +1,12 @@
 (function(app)
 {
 
-  app.directive('smAccordionBind', ['SemanticUI',
-  function SemanticAccordionBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smAccordionBind', 'accordion' );
-  }]);
+  app
+    .factory('SemanticAccordionLink', ['SemanticUI', SemanticAccordionLink])
+    .directive('smAccordionBind', ['SemanticUI', SemanticAccordionBind])
+    .directive('smAccordion', ['SemanticAccordionLink', SemanticAccordion])
+    .directive('smAccordionGroup', SemanticAccordionGroup)
+  ;
 
   var BEHAVIORS = {
     smAccordionOpen:        'open',
@@ -16,19 +17,27 @@
 
   angular.forEach( BEHAVIORS, function(method, directive)
   {
-    app.directive( directive, ['SemanticUI', function(SemanticUI) 
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
     {
       return SemanticUI.createBehavior( directive, 'accordion', method );
     }]);
   });
 
-  app.directive('smAccordion', ['SemanticUI',
-  function SemanticAccordion(SemanticUI) 
+  function SemanticAccordionBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smAccordionBind', 'accordion' );
+  }
+
+  function SemanticAccordion(SemanticAccordionLink)
   {
     return {
+
       restrict: 'E',
+
       replace: true,
+
       transclude: true,
+
       scope: {
         /* Optional */
         settings: '=',
@@ -40,36 +49,42 @@
         onClose: '=',
         onChange: '='
       },
+
       template: '<div class="ui accordion" ng-transclude></div>',
-      link: function(scope, element, attributes)
-      {
-        element.ready(function()
-        {
-          var settings = scope.settings || {};
 
-          SemanticUI.linkSettings( scope, element, attributes, 'accordion', true );
-
-          SemanticUI.linkEvents( scope, settings, $.fn.accordion.settings, {
-            onOpening:  'onOpening',
-            onOpen:     'onOpen',
-            onClosing:  'onClosing',
-            onClose:    'onClose',
-            onChange:   'onChange'
-          });
-
-          element.accordion( settings );
-
-          if ( angular.isFunction( scope.onInit ) )
-          {
-            scope.onInit( element );
-          } 
-        })
-      }
+      link: SemanticAccordionLink
     };
-  }]);
+  }
 
-  app.directive('smAccordionGroup',
-  function SemanticAccordionGroup() 
+  function SemanticAccordionLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      element.ready(function()
+      {
+        var settings = scope.settings || {};
+
+        SemanticUI.linkSettings( scope, element, attributes, 'accordion', true );
+
+        SemanticUI.linkEvents( scope, settings, $.fn.accordion.settings, {
+          onOpening:  'onOpening',
+          onOpen:     'onOpen',
+          onClosing:  'onClosing',
+          onClose:    'onClose',
+          onChange:   'onChange'
+        });
+
+        element.accordion( settings );
+
+        if ( angular.isFunction( scope.onInit ) )
+        {
+          scope.onInit( element );
+        }
+      });
+    };
+  }
+
+  function SemanticAccordionGroup()
   {
     return {
       restrict: 'E',
@@ -90,6 +105,6 @@
         '</div>'
       ].join('\n')
     }
-  });
+  }
 
-})( angular.module('semantic-ui') );
+})( angular.module('semantic-ui-accordion', ['semantic-ui-core']) );

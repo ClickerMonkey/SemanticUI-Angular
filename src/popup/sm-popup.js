@@ -1,11 +1,16 @@
 (function(app)
 {
 
-  app.directive('smPopupBind', ['SemanticUI',
-  function SemanticModalBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smPopupBind', 'popup' );
-  }]);
+  app
+    .factory('SemanticPopupLink', ['SemanticUI', SemanticPopupLink])
+    .factory('SemanticPopupInlineLink', ['SemanticUI', SemanticPopupInlineLink])
+    .factory('SemanticPopupDisplayLink', ['SemanticUI', SemanticPopupDisplayLink])
+    .directive('smPopupBind', ['SemanticUI', SemanticModalBind])
+    .directive('smPopup', ['SemanticPopupLink', SemanticPopup])
+    .directive('smPopupInline', ['SemanticPopupInlineLink', SemanticPopupInline])
+    .directive('smPopupDisplay', ['SemanticPopupDisplayLink', SemanticPopupDisplay])
+    .directive('smPopupDetached', [SemanticPopupDetached])
+  ;
 
   var BEHAVIORS = {
     smPopupShow:        'show',
@@ -19,18 +24,24 @@
 
   angular.forEach( BEHAVIORS, function(method, directive)
   {
-    app.directive( directive, ['SemanticUI', function(SemanticUI) 
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
     {
       return SemanticUI.createBehavior( directive, 'popup', method );
     }]);
   });
 
+  function SemanticModalBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smPopupBind', 'popup' );
+  }
+
   // An attribute directive which displays a popup for this element.
-  app.directive('smPopup', ['SemanticUI',
-  function SemanticPopup(SemanticUI)
+  function SemanticPopup(SemanticPopupLink)
   {
     return {
+
       restrict: 'A',
+
       scope: {
         /* Required */
         smPopup: '=',
@@ -49,43 +60,50 @@
         smPopupOnHide: '=',
         smPopupOnHidden: '='
       },
-      link: function(scope, element, attributes) 
+
+      link: SemanticPopupLink
+    };
+  }
+
+  function SemanticPopupLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.smPopupSettings || {};
+
+      SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupSettings' );
+
+      SemanticUI.bindAttribute( scope, 'smPopup', element, 'data-content' );
+      SemanticUI.bindAttribute( scope, 'smPopupTitle', element, 'data-title' );
+      SemanticUI.bindAttribute( scope, 'smPopupHtml', element, 'data-html' );
+      SemanticUI.bindAttribute( scope, 'smPopupPosition', element, 'data-position' );
+      SemanticUI.bindAttribute( scope, 'smPopupVariation', element, 'data-variation' );
+
+      SemanticUI.linkEvents( scope, settings, {
+        onCreate:  'smPopupOnCreate',
+        onRemove:  'smPopupOnRemove',
+        onShow:    'smPopupOnShow',
+        onVisible: 'smPopupOnVisible',
+        onHide:    'smPopupOnHide',
+        onHidden:  'smPopupOnHidden'
+      });
+
+      element.popup( settings );
+
+      if ( angular.isFunction( scope.smPopupOnInit ) )
       {
-        var settings = scope.smPopupSettings || {};
-
-        SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupSettings' );
-
-        SemanticUI.bindAttribute( scope, 'smPopup', element, 'data-content' );
-        SemanticUI.bindAttribute( scope, 'smPopupTitle', element, 'data-title' );
-        SemanticUI.bindAttribute( scope, 'smPopupHtml', element, 'data-html' );
-        SemanticUI.bindAttribute( scope, 'smPopupPosition', element, 'data-position' );
-        SemanticUI.bindAttribute( scope, 'smPopupVariation', element, 'data-variation' );
-
-        SemanticUI.linkEvents( scope, settings, {
-          onCreate:  'smPopupOnCreate',
-          onRemove:  'smPopupOnRemove',
-          onShow:    'smPopupOnShow',
-          onVisible: 'smPopupOnVisible',
-          onHide:    'smPopupOnHide',
-          onHidden:  'smPopupOnHidden'
-        });
-
-        element.popup( settings );
-
-        if ( angular.isFunction( scope.smPopupOnInit ) ) 
-        {
-          scope.smPopupOnInit( element );
-        }
+        scope.smPopupOnInit( element );
       }
     };
-  }]);
+  }
 
   // An attribute directive to show the detached popup which follows this element.
-  app.directive('smPopupInline', ['SemanticUI',
-  function SemanticPopupInline(SemanticUI) 
+  function SemanticPopupInline(SemanticPopupInlineLink)
   {
     return {
+
       restrict: 'A',
+
       scope: {
         /* Optional */
         smPopupInline: '=',
@@ -98,38 +116,45 @@
         smPopupInlineOnHide: '=',
         smPopupInlineOnHidden: '='
       },
-      link: function(scope, element, attributes) 
-      {
-        var settings = scope.smPopupInline || {};
 
-        SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupInline' );
+      link: SemanticPopupInlineLink
+    };
+  }
 
-        SemanticUI.linkEvents( scope, settings, {
-          onCreate:  'smPopupInlineOnCreate',
-          onRemove:  'smPopupInlineOnRemove',
-          onShow:    'smPopupInlineOnShow',
-          onVisible: 'smPopupInlineOnVisible',
-          onHide:    'smPopupInlineOnHide',
-          onHidden:  'smPopupInlineOnHidden'
-        });
+  function SemanticPopupInlineLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.smPopupInline || {};
 
-        settings.inline = true;
+      SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupInline' );
 
-        element.popup( settings );
+      SemanticUI.linkEvents( scope, settings, {
+        onCreate:  'smPopupInlineOnCreate',
+        onRemove:  'smPopupInlineOnRemove',
+        onShow:    'smPopupInlineOnShow',
+        onVisible: 'smPopupInlineOnVisible',
+        onHide:    'smPopupInlineOnHide',
+        onHidden:  'smPopupInlineOnHidden'
+      });
 
-        if ( angular.isFunction( scope.smPopupInlineOnInit ) ) {
-          scope.smPopupInlineOnInit( element );
-        }
+      settings.inline = true;
+
+      element.popup( settings );
+
+      if ( angular.isFunction( scope.smPopupInlineOnInit ) ) {
+        scope.smPopupInlineOnInit( element );
       }
     };
-  }]);
+  }
 
   // An attribute directive to show a detached popup over this element given it's name.
-  app.directive('smPopupDisplay', ['SemanticUI',
-  function SemanticPopupDisplay(SemanticUI) 
+  function SemanticPopupDisplay(SemanticPopupDisplayLink)
   {
     return {
+
       restrict: 'A',
+
       scope: {
         /* Required */
         smPopupDisplay: '@',
@@ -144,45 +169,55 @@
         smPopupDisplayOnHide: '=',
         smPopupDisplayOnHidden: '='
       },
-      link: function(scope, element, attributes) 
-      {
-        var settings = scope.smPopupDisplaySettings || {};
 
-        SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupDisplaySettings' );
+      link: SemanticPopupDisplayLink
+    };
+  }
 
-        SemanticUI.linkEvents( scope, settings, $.fn.popup.settings, {
-          onCreate:  'smPopupDisplayOnCreate',
-          onRemove:  'smPopupDisplayOnRemove',
-          onShow:    'smPopupDisplayOnShow',
-          onVisible: 'smPopupDisplayOnVisible',
-          onHide:    'smPopupDisplayOnHide',
-          onHidden:  'smPopupDisplayOnHidden'
-        });
+  function SemanticPopupDisplayLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.smPopupDisplaySettings || {};
 
-        settings.popup = '[data-popup-named="' + attributes.smPopupDisplay + '"]';
+      SemanticUI.linkSettings( scope, element, attributes, 'popup', false, 'smPopupDisplaySettings' );
 
-        element.popup( settings );
+      SemanticUI.linkEvents( scope, settings, $.fn.popup.settings, {
+        onCreate:  'smPopupDisplayOnCreate',
+        onRemove:  'smPopupDisplayOnRemove',
+        onShow:    'smPopupDisplayOnShow',
+        onVisible: 'smPopupDisplayOnVisible',
+        onHide:    'smPopupDisplayOnHide',
+        onHidden:  'smPopupDisplayOnHidden'
+      });
 
-        if ( angular.isFunction( scope.smPopupDisplayOnInit ) ) {
-          scope.smPopupDisplayOnInit( element );
-        }
+      settings.popup = '[data-popup-named="' + attributes.smPopupDisplay + '"]';
+
+      element.popup( settings );
+
+      if ( angular.isFunction( scope.smPopupDisplayOnInit ) ) {
+        scope.smPopupDisplayOnInit( element );
       }
     };
-  }]);
+  }
 
   // An element directive for a popup, can be used after an element or can be named and used with sm-popup-display.
-  app.directive('smPopupDetached', 
-  function SemanticPopupDetached() 
+  function SemanticPopupDetached()
   {
     return {
+
       restrict: 'E',
+
       replace: true,
+
       transclude: true,
+
       scope: {
         name: '@'
       },
+
       template: '<div class="ui popup" data-popup-named="{{ name }}" ng-transclude></div>'
     };
-  });
+  }
 
-})( angular.module('semantic-ui') );
+})( angular.module('semantic-ui-popup', ['semantic-ui-core']) );

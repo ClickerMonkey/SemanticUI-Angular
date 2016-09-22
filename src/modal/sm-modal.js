@@ -1,11 +1,11 @@
 (function(app)
 {
 
-  app.directive('smModalBind', ['SemanticUI',
-  function SemanticModalBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smModalBind', 'modal' );
-  }]);
+  app
+    .factory('SemanticModalLink', ['SemanticUI', SemanticModalLink])
+    .directive('smModalBind', ['SemanticUI', SemanticModalBind])
+    .directive('smModal', ['SemanticModalLink', SemanticModal])
+  ;
 
   var BEHAVIORS = {
     smModalShow:        'show',
@@ -22,14 +22,18 @@
 
   angular.forEach( BEHAVIORS, function(method, directive)
   {
-    app.directive( directive, ['SemanticUI', function(SemanticUI) 
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
     {
       return SemanticUI.createBehavior( directive, 'modal', method );
     }]);
   });
 
-  app.directive('smModal', ['SemanticUI',
-  function SemanticModal(SemanticUI) 
+  function SemanticModalBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smModalBind', 'modal' );
+  }
+
+  function SemanticModal(SemanticModalLink)
   {
     return {
 
@@ -55,46 +59,50 @@
 
       template: '<div class="ui modal" ng-transclude></div>',
 
-      link: function(scope, element, attributes)
-      {
-        var settings = scope.settings || {};
-
-        SemanticUI.linkSettings( scope, element, attributes, 'modal' );
-
-        // If the visible attribute is specified, listen to onHide and update modal when variable changes.
-        if ( attributes.visible )
-        {
-          var visibleWatcher = SemanticUI.watcher( scope, 'visible', 
-            function(updated) {
-              element.modal( updated ? 'show' : 'hide' );
-            }
-          );
-
-          SemanticUI.onEvent( settings, 'onHide', 
-            function() {
-              visibleWatcher.set( false );
-            }
-          );
-        }
-
-        SemanticUI.linkEvents( scope, settings, $.fn.modal.settings, {
-          onShow:    'onShow',
-          onVisible: 'onVisible',
-          onHide:    'onHide',
-          onHidden:  'onHidden',
-          onApprove: 'onApprove',
-          onDeny:    'onDeny'
-        });
-
-        // Initialize the element with the given settings.
-        element.modal( settings );
-
-        if ( angular.isFunction( scope.onInit ) ) {
-          scope.onInit( element );
-        }
-      }
+      link: SemanticModalLink
     }
-  }]);
+  }
 
+  function SemanticModalLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
 
-})( angular.module('semantic-ui') );
+      SemanticUI.linkSettings( scope, element, attributes, 'modal' );
+
+      // If the visible attribute is specified, listen to onHide and update modal when variable changes.
+      if ( attributes.visible )
+      {
+        var visibleWatcher = SemanticUI.watcher( scope, 'visible',
+          function(updated) {
+            element.modal( updated ? 'show' : 'hide' );
+          }
+        );
+
+        SemanticUI.onEvent( settings, 'onHide',
+          function() {
+            visibleWatcher.set( false );
+          }
+        );
+      }
+
+      SemanticUI.linkEvents( scope, settings, $.fn.modal.settings, {
+        onShow:    'onShow',
+        onVisible: 'onVisible',
+        onHide:    'onHide',
+        onHidden:  'onHidden',
+        onApprove: 'onApprove',
+        onDeny:    'onDeny'
+      });
+
+      // Initialize the element with the given settings.
+      element.modal( settings );
+
+      if ( angular.isFunction( scope.onInit ) ) {
+        scope.onInit( element );
+      }
+    };
+  }
+
+})( angular.module('semantic-ui-modal', ['semantic-ui-core']) );

@@ -1,11 +1,11 @@
 (function(app)
 {
 
-  app.directive('smSearchBind', ['SemanticUI', 
-  function SemanticSearchBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smSearchBind', 'search' );
-  }]);
+  app
+    .factory('SemanticSearchLink', ['SemanticUI', SemanticSearchLink])
+    .directive('smSearchBind', ['SemanticUI', SemanticSearchBind])
+    .directive('smSearch', ['SemanticSearchLink', SemanticSearch])
+  ;
 
   var BEHAVIORS = {
     smSearchQuery:        'query',
@@ -20,14 +20,18 @@
 
   angular.forEach( BEHAVIORS, function(method, directive)
   {
-    app.directive( directive, ['SemanticUI', function(SemanticUI) 
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
     {
       return SemanticUI.createBehavior( directive, 'search', method );
     }]);
   });
 
-  app.directive('smSearch', ['SemanticUI',
-  function SemanticSearch(SemanticUI)
+  function SemanticSearchBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smSearchBind', 'search' );
+  }
+
+  function SemanticSearch(SemanticSearchLink)
   {
     return {
 
@@ -66,49 +70,61 @@
         '</div>'
       ].join('\n'),
 
-      link: function(scope, element, attributes) 
-      {
-        var settings = scope.settings || {};
+      link: SemanticSearchLink
+    };
+  }
 
-        SemanticUI.linkSettings( scope, element, attributes, 'search' );
+  function SemanticSearchLink(SemanticUI)
+  {
+    var defaultTitle = $.fn.search && $.fn.search.settings && $.fn.search.settings.fields ? $.fn.search.settings.fields.title : '';
 
-        if ( scope.local ) settings.source = scope.local;
-        if ( scope.remote ) settings.apiSettings = { url: scope.remote };
-        if ( scope.category ) settings.type = 'category';
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
+      var textProperty = settings.fields && settings.fields.title ? settings.fields.title : defaultTitle;
 
-        var modelWatcher = SemanticUI.watcher( scope, 'model', 
-          function(value) {
-            element.search( 'set value', value );
-          }
-        );
+      SemanticUI.linkSettings( scope, element, attributes, 'search' );
 
-        SemanticUI.onEvent( settings, 'onSelect', 
-          function(result, response) {
-            modelWatcher.set( result );
-            if ( attributes.text ) {
-              scope.$evalAsync(function() {
-                scope.text = result.title;
-              });
-            }
-          }
-        );
+      if ( scope.local ) settings.source = scope.local;
+      if ( scope.remote ) settings.apiSettings = { url: scope.remote };
+      if ( scope.category ) settings.type = 'category';
 
-        SemanticUI.linkEvents( scope, settings, $.fn.search.settings, {
-          onSelect:         'onSelect',
-          onResultsAdd:     'onResultsAdd',
-          onSearchQuery:    'onSearchQuery',
-          onResults:        'onResults',
-          onResultsOpen:    'onResultsOpen',
-          onResultsClose:   'onResultsClose'
-        });
-
-        element.search( settings );
-
-        if ( angular.isFunction( scope.onInit ) ) {
-          scope.onInit( element );
+      var modelWatcher = SemanticUI.watcher( scope, 'model',
+        function(value) {
+          element.search( 'set value', value && (textProperty in value) ? value[ textProperty ] : value );
         }
+      );
+
+      SemanticUI.onEvent( settings, 'onSelect',
+        function(result, response) {
+          modelWatcher.set( result );
+          if ( attributes.text ) {
+            scope.$evalAsync(function() {
+              scope.text = result[ textProperty ];
+            });
+          }
+        }
+      );
+
+      SemanticUI.linkEvents( scope, settings, $.fn.search.settings, {
+        onSelect:         'onSelect',
+        onResultsAdd:     'onResultsAdd',
+        onSearchQuery:    'onSearchQuery',
+        onResults:        'onResults',
+        onResultsOpen:    'onResultsOpen',
+        onResultsClose:   'onResultsClose'
+      });
+
+      element.search( settings );
+
+      if ( angular.isFunction( scope.onInit ) ) {
+        scope.onInit( element );
+      }
+
+      if ( scope.model && attributes.text && textProperty in scope.model ) {
+        scope.text = scope.model[ textProperty ];
       }
     };
-  }]);
+  }
 
-})( angular.module('semantic-ui') );
+})( angular.module('semantic-ui-search', ['semantic-ui-core']) );

@@ -1,10 +1,17 @@
 (function(app)
 {
 
-  app.factory('SemanticUI', ['$compile',
-  function SemanticUIFactory($compile) 
+  app
+    .factory('SemanticUI', ['$compile', SemanticUIFactory])
+    .directive('smButton', SemanticButton)
+    .directive('smMenuItem', SemanticItem)
+    .directive('smFlatMenu', SemanticFlatMenu)
+    .directive('smHtml', ['$injector', SemanticHtml])
+  ;
+
+  function SemanticUIFactory($compile)
   {
-    var SemanticUI = 
+    var SemanticUI =
     {
       setDefaultFunction: function(scope, variable, attributes, func)
       {
@@ -20,7 +27,7 @@
           // Don't trigger the change event if the element hasn't been initialized.
           if ( initialized )
           {
-            // Trigger the change event during a digest cycle so any other 
+            // Trigger the change event during a digest cycle so any other
             // variables that are changing this current digest cycle can finish.
             scope.$evalAsync(function()
             {
@@ -40,17 +47,17 @@
       },
       onEvent: function(settings, evt, func)
       {
-        settings[ evt ] = (function(existing, undefined) 
+        settings[ evt ] = (function(existing, undefined)
         {
-          return function EventHandler() 
+          return function EventHandler()
           {
             var result0 = undefined;
 
-            if ( angular.isFunction( existing ) ) 
+            if ( angular.isFunction( existing ) )
             {
               result0 = existing.apply( this, arguments );
             }
-            
+
             var result1 = func.apply( this, arguments );
 
             return ( result0 !== undefined ? result0 : result1 );
@@ -83,7 +90,7 @@
       linkSettings: function(scope, element, attributes, module, initialized, settingsAttribute)
       {
         var settings = settingsAttribute || 'settings';
-      
+
         if ( settings in attributes )
         {
           scope.$watch( settings, function( updated )
@@ -107,7 +114,7 @@
 
           restrict: 'A',
 
-          link: function(scope, element, attributes) 
+          link: function(scope, element, attributes)
           {
             SemanticUI.linkSettings( scope, element, attributes, module, false, attribute );
             SemanticUI.initBind( scope, element, attributes, attribute, module );
@@ -135,7 +142,7 @@
 
           restrict: 'A',
 
-          link: function(scope, element, attributes) 
+          link: function(scope, element, attributes)
           {
             SemanticUI.initBehavior( scope, attributes, attribute, element, module, method );
           }
@@ -151,13 +158,13 @@
           value: undefined
         };
 
-        var onEvent = function() 
+        var onEvent = function()
         {
           // If the trigger is currently enabled...
-          if ( settings.enabled ) 
+          if ( settings.enabled )
           {
             // Call the method on the module.
-            $( settings.$ )[ module ]( method, settings.value ); 
+            $( settings.$ )[ module ]( method, settings.value );
           }
         };
 
@@ -166,12 +173,12 @@
         scope.$watch( attributes[ attribute ], function(input)
         {
           // If the attribute value is a string, take it as the selector
-          if ( angular.isString( input ) ) 
+          if ( angular.isString( input ) )
           {
             settings.$ = input;
           }
           // If the attribute value is an object, overwrite the defaults.
-          else if ( angular.isObject( input ) ) 
+          else if ( angular.isObject( input ) )
           {
             if ( !angular.isString( input.evt ) ) input.evt = settings.evt;
             if ( !angular.isDefined( input.enabled ) ) input.enabled = settings.enabled;
@@ -188,7 +195,7 @@
 
         }, true );
       },
-      watcher: function(scope, expression, func, context, force) 
+      watcher: function(scope, expression, func, context, force, equals)
       {
         var ignoreUpdate = false;
 
@@ -200,7 +207,8 @@
           }
 
           ignoreUpdate = false;
-        });
+
+        }, equals );
 
         return {
           set: function(value)
@@ -245,7 +253,7 @@
               post: function(scope, element)
               {
                   // Compile the contents
-                  if( !compiledContents ) 
+                  if( !compiledContents )
                   {
                       compiledContents = $compile(contents);
                   }
@@ -273,6 +281,84 @@
     };
 
     return SemanticUI;
-  }]);
+  }
 
-})( angular.module('semantic-ui', []) );
+  function SemanticButton()
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      template: '<button class="ui button" ng-transclude></button>'
+    };
+  }
+
+  function SemanticItem()
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+        icon: '@'
+      },
+
+      template: '<a class="item"><i class="{{ icon }} icon" ng-if="icon"></i><span ng-transclude></span></a>'
+    }
+  }
+
+  function SemanticFlatMenu()
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      template: [
+        '<div class="menu">',
+        '  <div class="item" ng-repeat="item in items" data-value="{{ getValue(item) }}" sm-html="label({item:item})"></div>',
+        '</div>'
+      ].join('\n')
+    }
+  }
+
+  function SemanticHtml($injector)
+  {
+    var sanitize = function(value)
+    {
+      return value;
+    };
+
+    try
+    {
+      $sce = $injector.get('$sce');
+
+      sanitize = function(value)
+      {
+        return $sce.getTrustedHtml( $sce.trustAsHtml( value ) );
+      };
+    }
+    catch (e)
+    {
+      // ignore
+    }
+
+    return function(scope, element, attrs)
+    {
+      scope.$watch( attrs.smHtml, function(value)
+      {
+        element.html( sanitize( value || '' ) );
+      });
+    };
+  }
+
+})( angular.module('semantic-ui-core', []) );
