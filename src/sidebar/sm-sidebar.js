@@ -38,10 +38,9 @@
 
       replace: true,
 
+      transclude: true,
+
       scope: {
-        /* Required */
-        items: '=',
-        label: '&',
         /* Optional */
         onClick: '&',
         visible: '=',
@@ -55,11 +54,7 @@
         onHidden: '='
       },
 
-      template: [
-        '<div class="ui sidebar">',
-        ' <a class="item" ng-repeat="i in items" sm-html="label({item:i})" ng-click="onClick({item:i, $event:$event})"></a>',
-        '</div>'
-      ].join('\n'),
+      template: '<div class="ui sidebar" ng-transclude></div>',
 
       link: SemanticSidebarLink
     };
@@ -70,8 +65,6 @@
     return function(scope, element, attributes)
     {
       var settings = scope.settings || {};
-
-      SemanticUI.setDefaultFunction( scope, 'label', attributes, function(locals){return locals.item} );
 
       SemanticUI.linkSettings( scope, element, attributes, 'sidebar' );
 
