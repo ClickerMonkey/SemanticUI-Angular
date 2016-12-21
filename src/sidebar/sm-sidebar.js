@@ -42,8 +42,6 @@
 
       scope: {
         /* Optional */
-        items: '=',
-        label: '&',
         onClick: '&',
         visible: '=',
         settings: '=',
@@ -67,8 +65,6 @@
     return function(scope, element, attributes)
     {
       var settings = scope.settings || {};
-
-      // SemanticUI.setDefaultFunction( scope, 'label', attributes, function(locals){return locals.item} );
 
       SemanticUI.linkSettings( scope, element, attributes, 'sidebar' );
 

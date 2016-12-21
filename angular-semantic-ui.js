@@ -1029,200 +1029,6 @@ angular.module('semantic-ui', [
 {
 
   app
-    .factory('SemanticDimmerLink', ['SemanticUI', SemanticDimmerLink])
-    .directive('smDimmerBind', ['SemanticUI', SemanticDimmerBind])
-    .directive('smDimmer', ['SemanticDimmerLink', SemanticDimmer])
-  ;
-
-  var BEHAVIORS = {
-    smDimmerShow:           'show',
-    smDimmerHide:           'hide',
-    smDimmerToggle:         'toggle'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI)
-    {
-      return SemanticUI.createBehavior( directive, 'dimmer', method );
-    }]);
-  });
-
-  function SemanticDimmerBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smDimmerBind', 'dimmer' );
-  }
-
-  function SemanticDimmer(SemanticDimmerLink)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-        /* Optional */
-        visible: '=',
-        settings: '=',
-        onInit: '=',
-        /* Events */
-        onShow: '=',
-        onHide: '=',
-        onChange: '='
-      },
-
-      template: '<div class="ui dimmer" ng-transclude></div>',
-
-      link: SemanticDimmerLink
-    };
-  }
-
-  function SemanticDimmerLink(SemanticUI)
-  {
-    return function(scope, element, attributes)
-    {
-      var settings = scope.settings || {};
-
-      SemanticUI.linkSettings( scope, element, attributes, 'dimmer' );
-
-      // If the visible attribute is specified, listen to onHide and update modal when variable changes.
-      if ( attributes.visible )
-      {
-        var visibleWatcher = SemanticUI.watcher( scope, 'visible',
-          function(updated) {
-            element.dimmer( updated ? 'show' : 'hide' );
-          }
-        );
-
-        SemanticUI.onEvent( settings, 'onShow',
-          function(value) {
-            visibleWatcher.set( true );
-          }
-        );
-
-        SemanticUI.onEvent( settings, 'onHide',
-          function(value) {
-            visibleWatcher.set( false );
-          }
-        );
-      }
-
-      SemanticUI.linkEvents( scope, settings, $.fn.dimmer.settings, {
-        onShow:   'onShow',
-        onHide:   'onHide',
-        onChange: 'onChange'
-      });
-
-      element.dimmer( settings );
-
-      if ( angular.isFunction( scope.onInit ) ) {
-        scope.onInit( element );
-      }
-    };
-  }
-
-})( angular.module('semantic-ui-dimmer', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
-    .factory('SemanticEmbedLink', ['SemanticUI', SemanticEmbedLink])
-    .directive('smEmbedBind', ['SemanticUI', SemanticEmbedBind])
-    .directive('smEmbed', ['SemanticEmbedLink', SemanticEmbed])
-  ;
-
-  var BEHAVIORS = {
-    smEmbedReset:     'reset',
-    smEmbedShow:      'show',
-    smEmbedHide:      'hide',
-    smEmbedDestroy:   'destroy'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI)
-    {
-      return SemanticUI.createBehavior( directive, 'embed', method );
-    }]);
-  });
-
-  function SemanticEmbedBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smEmbedBind', 'embed' );
-  }
-
-  function SemanticEmbed(SemanticEmbedLink)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-        /* Optional */
-        source: '@',
-        sourceId: '@',
-        url: '@',
-        placeholder: '@',
-        icon: '@',
-        settings: '=',
-        onInit: '=',
-        /* Events */
-        onCreate: '=',
-        onDisplay: '=',
-        onPlaceholderDisplay: '=',
-        onEmbed: '='
-      },
-
-      template: '<div class="ui embed"></div>',
-
-      link: SemanticEmbedLink
-    };
-  }
-
-  function SemanticEmbedLink(SemanticUI)
-  {
-    return function(scope, element, attributes)
-    {
-      var settings = scope.settings || {};
-
-      SemanticUI.linkSettings( scope, element, attributes, 'embed' );
-
-      if ( scope.source ) settings.source = scope.source;
-      if ( scope.sourceId ) settings.id = scope.sourceId;
-      if ( scope.placeholder ) settings.placeholder = scope.placeholder;
-      if ( scope.icon ) settings.icon = scope.icon;
-      if ( scope.url ) settings.url = scope.url;
-
-      SemanticUI.linkEvents( scope, settings, $.fn.embed.settings, {
-        onCreate:             'onCreate',
-        onDisplay:            'onDisplay',
-        onPlaceholderDisplay: 'onPlaceholderDisplay',
-        onEmbed:              'onEmbed'
-      });
-
-      element.embed( settings );
-
-      if ( angular.isFunction( scope.onInit ) ) {
-        scope.onInit( element );
-      }
-    };
-  }
-
-
-})( angular.module('semantic-ui-embed', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
     .controller('SemanticDropdownController', ['$scope', SemanticDropdownController])
     .factory('SemanticDropdownLink', ['SemanticUI', '$timeout', SemanticDropdownLink])
     .directive('smDropdownBind', ['SemanticUI', SemanticDropdownBind])
@@ -1541,6 +1347,200 @@ angular.module('semantic-ui', [
   }
 
 })( angular.module('semantic-ui-dropdown', ['semantic-ui-core']) );
+
+(function(app)
+{
+
+  app
+    .factory('SemanticDimmerLink', ['SemanticUI', SemanticDimmerLink])
+    .directive('smDimmerBind', ['SemanticUI', SemanticDimmerBind])
+    .directive('smDimmer', ['SemanticDimmerLink', SemanticDimmer])
+  ;
+
+  var BEHAVIORS = {
+    smDimmerShow:           'show',
+    smDimmerHide:           'hide',
+    smDimmerToggle:         'toggle'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
+    {
+      return SemanticUI.createBehavior( directive, 'dimmer', method );
+    }]);
+  });
+
+  function SemanticDimmerBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smDimmerBind', 'dimmer' );
+  }
+
+  function SemanticDimmer(SemanticDimmerLink)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+        /* Optional */
+        visible: '=',
+        settings: '=',
+        onInit: '=',
+        /* Events */
+        onShow: '=',
+        onHide: '=',
+        onChange: '='
+      },
+
+      template: '<div class="ui dimmer" ng-transclude></div>',
+
+      link: SemanticDimmerLink
+    };
+  }
+
+  function SemanticDimmerLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
+
+      SemanticUI.linkSettings( scope, element, attributes, 'dimmer' );
+
+      // If the visible attribute is specified, listen to onHide and update modal when variable changes.
+      if ( attributes.visible )
+      {
+        var visibleWatcher = SemanticUI.watcher( scope, 'visible',
+          function(updated) {
+            element.dimmer( updated ? 'show' : 'hide' );
+          }
+        );
+
+        SemanticUI.onEvent( settings, 'onShow',
+          function(value) {
+            visibleWatcher.set( true );
+          }
+        );
+
+        SemanticUI.onEvent( settings, 'onHide',
+          function(value) {
+            visibleWatcher.set( false );
+          }
+        );
+      }
+
+      SemanticUI.linkEvents( scope, settings, $.fn.dimmer.settings, {
+        onShow:   'onShow',
+        onHide:   'onHide',
+        onChange: 'onChange'
+      });
+
+      element.dimmer( settings );
+
+      if ( angular.isFunction( scope.onInit ) ) {
+        scope.onInit( element );
+      }
+    };
+  }
+
+})( angular.module('semantic-ui-dimmer', ['semantic-ui-core']) );
+
+(function(app)
+{
+
+  app
+    .factory('SemanticEmbedLink', ['SemanticUI', SemanticEmbedLink])
+    .directive('smEmbedBind', ['SemanticUI', SemanticEmbedBind])
+    .directive('smEmbed', ['SemanticEmbedLink', SemanticEmbed])
+  ;
+
+  var BEHAVIORS = {
+    smEmbedReset:     'reset',
+    smEmbedShow:      'show',
+    smEmbedHide:      'hide',
+    smEmbedDestroy:   'destroy'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
+    {
+      return SemanticUI.createBehavior( directive, 'embed', method );
+    }]);
+  });
+
+  function SemanticEmbedBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smEmbedBind', 'embed' );
+  }
+
+  function SemanticEmbed(SemanticEmbedLink)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+        /* Optional */
+        source: '@',
+        sourceId: '@',
+        url: '@',
+        placeholder: '@',
+        icon: '@',
+        settings: '=',
+        onInit: '=',
+        /* Events */
+        onCreate: '=',
+        onDisplay: '=',
+        onPlaceholderDisplay: '=',
+        onEmbed: '='
+      },
+
+      template: '<div class="ui embed"></div>',
+
+      link: SemanticEmbedLink
+    };
+  }
+
+  function SemanticEmbedLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
+
+      SemanticUI.linkSettings( scope, element, attributes, 'embed' );
+
+      if ( scope.source ) settings.source = scope.source;
+      if ( scope.sourceId ) settings.id = scope.sourceId;
+      if ( scope.placeholder ) settings.placeholder = scope.placeholder;
+      if ( scope.icon ) settings.icon = scope.icon;
+      if ( scope.url ) settings.url = scope.url;
+
+      SemanticUI.linkEvents( scope, settings, $.fn.embed.settings, {
+        onCreate:             'onCreate',
+        onDisplay:            'onDisplay',
+        onPlaceholderDisplay: 'onPlaceholderDisplay',
+        onEmbed:              'onEmbed'
+      });
+
+      element.embed( settings );
+
+      if ( angular.isFunction( scope.onInit ) ) {
+        scope.onInit( element );
+      }
+    };
+  }
+
+
+})( angular.module('semantic-ui-embed', ['semantic-ui-core']) );
 
 (function(app)
 {
@@ -2571,8 +2571,6 @@ angular.module('semantic-ui', [
 
       scope: {
         /* Optional */
-        items: '=',
-        label: '&',
         onClick: '&',
         visible: '=',
         settings: '=',
@@ -2585,12 +2583,6 @@ angular.module('semantic-ui', [
         onHidden: '='
       },
 
-      // template: [
-      //   '<div class="ui sidebar">',
-      //   ' <a class="item" ng-repeat="i in items" sm-html="label({item:i})" ng-click="onClick({item:i, $event:$event})"></a>',
-      //   '</div>'
-      // ].join('\n'),
-
       template: '<div class="ui sidebar" ng-transclude></div>',
 
       link: SemanticSidebarLink
@@ -2602,8 +2594,6 @@ angular.module('semantic-ui', [
     return function(scope, element, attributes)
     {
       var settings = scope.settings || {};
-
-      // SemanticUI.setDefaultFunction( scope, 'label', attributes, function(locals){return locals.item} );
 
       SemanticUI.linkSettings( scope, element, attributes, 'sidebar' );
 
