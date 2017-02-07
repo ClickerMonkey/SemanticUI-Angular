@@ -135,7 +135,8 @@
     // in the items, the appropriate item's label is displayed. Otherwise return the default text.
     $scope.getDefaultText = function()
     {
-      return ( $scope.isEmpty() ? $scope.defaultText : '' );
+      var defaultText = $scope.defaultText ? $scope.defaultText : '';
+      return ( $scope.isEmpty() ? defaultText : $scope.findMatchingItem($scope.model) );
     };
 
     // Finds an item instance that has the exact same value as the given value.
