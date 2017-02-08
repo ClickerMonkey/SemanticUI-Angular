@@ -4,7 +4,7 @@
  * 
  * https://github.com/ClickerMonkey/SemanticUI-Angular
  * Released under the MIT license.
- * Copyright 2016 Philip Diffenderfer and contributors.
+ * Copyright 2017 Philip Diffenderfer and contributors.
  */
 
 angular.module('semantic-ui', [
@@ -400,6 +400,117 @@ angular.module('semantic-ui', [
 {
 
   app
+    .factory('SemanticAccordionLink', ['SemanticUI', SemanticAccordionLink])
+    .directive('smAccordionBind', ['SemanticUI', SemanticAccordionBind])
+    .directive('smAccordion', ['SemanticAccordionLink', SemanticAccordion])
+    .directive('smAccordionGroup', SemanticAccordionGroup)
+  ;
+
+  var BEHAVIORS = {
+    smAccordionOpen:        'open',
+    smAccordionCloseOthers: 'close others',
+    smAccordionClose:       'close',
+    smAccordionToggle:      'toggle'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
+    {
+      return SemanticUI.createBehavior( directive, 'accordion', method );
+    }]);
+  });
+
+  function SemanticAccordionBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smAccordionBind', 'accordion' );
+  }
+
+  function SemanticAccordion(SemanticAccordionLink)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+        /* Optional */
+        settings: '=',
+        onInit: '=',
+        /* Events */
+        onOpening: '=',
+        onOpen: '=',
+        onClosing: '=',
+        onClose: '=',
+        onChange: '='
+      },
+
+      template: '<div class="ui accordion" ng-transclude></div>',
+
+      link: SemanticAccordionLink
+    };
+  }
+
+  function SemanticAccordionLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      element.ready(function()
+      {
+        var settings = scope.settings || {};
+
+        SemanticUI.linkSettings( scope, element, attributes, 'accordion', true );
+
+        SemanticUI.linkEvents( scope, settings, $.fn.accordion.settings, {
+          onOpening:  'onOpening',
+          onOpen:     'onOpen',
+          onClosing:  'onClosing',
+          onClose:    'onClose',
+          onChange:   'onChange'
+        });
+
+        element.accordion( settings );
+
+        if ( angular.isFunction( scope.onInit ) )
+        {
+          scope.onInit( element );
+        }
+      });
+    };
+  }
+
+  function SemanticAccordionGroup()
+  {
+    return {
+      restrict: 'E',
+      required: 'title',
+      transclude: true,
+      scope: {
+        /* Required */
+        title: '=',
+        /* Optional */
+        active: '='
+      },
+      template: [
+        '<div class="title" ng-class="{active: active}">',
+        '  <i class="dropdown icon"></i>',
+        '  {{ title }}',
+        '</div>',
+        '<div class="content" ng-class="{active: active}" ng-transclude>',
+        '</div>'
+      ].join('\n')
+    }
+  }
+
+})( angular.module('semantic-ui-accordion', ['semantic-ui-core']) );
+
+(function(app)
+{
+
+  app
     .factory('SemanticCheckboxLink', ['SemanticUI', SemanticCheckboxLink])
     .directive('smCheckboxBind', ['SemanticUI', SemanticCheckboxBind])
     .directive('smCheckbox', ['SemanticCheckboxLink', SemanticCheckbox])
@@ -785,117 +896,6 @@ angular.module('semantic-ui', [
 {
 
   app
-    .factory('SemanticAccordionLink', ['SemanticUI', SemanticAccordionLink])
-    .directive('smAccordionBind', ['SemanticUI', SemanticAccordionBind])
-    .directive('smAccordion', ['SemanticAccordionLink', SemanticAccordion])
-    .directive('smAccordionGroup', SemanticAccordionGroup)
-  ;
-
-  var BEHAVIORS = {
-    smAccordionOpen:        'open',
-    smAccordionCloseOthers: 'close others',
-    smAccordionClose:       'close',
-    smAccordionToggle:      'toggle'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI)
-    {
-      return SemanticUI.createBehavior( directive, 'accordion', method );
-    }]);
-  });
-
-  function SemanticAccordionBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smAccordionBind', 'accordion' );
-  }
-
-  function SemanticAccordion(SemanticAccordionLink)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-        /* Optional */
-        settings: '=',
-        onInit: '=',
-        /* Events */
-        onOpening: '=',
-        onOpen: '=',
-        onClosing: '=',
-        onClose: '=',
-        onChange: '='
-      },
-
-      template: '<div class="ui accordion" ng-transclude></div>',
-
-      link: SemanticAccordionLink
-    };
-  }
-
-  function SemanticAccordionLink(SemanticUI)
-  {
-    return function(scope, element, attributes)
-    {
-      element.ready(function()
-      {
-        var settings = scope.settings || {};
-
-        SemanticUI.linkSettings( scope, element, attributes, 'accordion', true );
-
-        SemanticUI.linkEvents( scope, settings, $.fn.accordion.settings, {
-          onOpening:  'onOpening',
-          onOpen:     'onOpen',
-          onClosing:  'onClosing',
-          onClose:    'onClose',
-          onChange:   'onChange'
-        });
-
-        element.accordion( settings );
-
-        if ( angular.isFunction( scope.onInit ) )
-        {
-          scope.onInit( element );
-        }
-      });
-    };
-  }
-
-  function SemanticAccordionGroup()
-  {
-    return {
-      restrict: 'E',
-      required: 'title',
-      transclude: true,
-      scope: {
-        /* Required */
-        title: '=',
-        /* Optional */
-        active: '='
-      },
-      template: [
-        '<div class="title" ng-class="{active: active}">',
-        '  <i class="dropdown icon"></i>',
-        '  {{ title }}',
-        '</div>',
-        '<div class="content" ng-class="{active: active}" ng-transclude>',
-        '</div>'
-      ].join('\n')
-    }
-  }
-
-})( angular.module('semantic-ui-accordion', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
     .controller('SemanticCommentsController', ['$scope', SemanticCommentsController])
     .directive('smComments', ['SemanticUI', SemanticComments])
   ;
@@ -1263,7 +1263,8 @@ angular.module('semantic-ui', [
     // in the items, the appropriate item's label is displayed. Otherwise return the default text.
     $scope.getDefaultText = function()
     {
-      return ( $scope.isEmpty() ? $scope.defaultText : '' );
+      var defaultText = $scope.defaultText ? $scope.defaultText : '';
+      return ( $scope.isEmpty() ? defaultText : $scope.findMatchingItem($scope.model) );
     };
 
     // Finds an item instance that has the exact same value as the given value.
@@ -2439,6 +2440,98 @@ angular.module('semantic-ui', [
 {
 
   app
+    .factory('SemanticShapeLink', ['SemanticUI', SemanticShapeLink])
+    .directive('smShapeBind', ['SemanticUI', SemanticShapeBind])
+    .directive('smShape', ['SemanticShapeLink', SemanticShape])
+  ;
+
+  var BEHAVIORS = {
+    smShapeFlipUp:          'flip up',
+    smShapeFlipDown:        'flip down',
+    smShapeFlipLeft:        'flip left',
+    smShapeFlipRight:       'flip right',
+    smShapeFlipOver:        'flip over',
+    smShapeFlipBack:        'flip back',
+    smShapeSetNextSide:     'set next side',
+    smShapeReset:           'reset',
+    smShapeQueue:           'queue',
+    smShapeRepaint:         'repaint',
+    smShapeSetDefaultSide:  'set default side',
+    smShapeSetStageSize:    'set stage size',
+    smShapeRefresh:         'refresh'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
+    {
+      return SemanticUI.createBehavior( directive, 'shape', method );
+    }]);
+  });
+
+  function SemanticShapeBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smShapeBind', 'shape' );
+  }
+
+  function SemanticShape(SemanticShapeLink)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+
+        settings: '=',
+        onInit: '=',
+        /* Events */
+        onBeforeChange: '=',
+        onChange: '=',
+      },
+
+      template: [
+        '<div class="ui shape">',
+        ' <div class="sides" ng-transclude>',
+        ' </div>',
+        '</div>'
+      ].join('\n'),
+
+      link: SemanticShapeLink
+
+    };
+  }
+
+  function SemanticShapeLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
+
+      SemanticUI.linkSettings( scope, element, attributes, 'shape' );
+
+      SemanticUI.linkEvents( scope, settings, $.fn.shape.settings, {
+        onBeforeChange:   'onBeforeChange',
+        onChange:         'onChange'
+      });
+
+      element.shape( settings );
+
+      if ( angular.isFunction( scope.onInit ) ) {
+        scope.onInit( element );
+      }
+    };
+  }
+
+})( angular.module('semantic-ui-shape', ['semantic-ui-core']) );
+
+(function(app)
+{
+
+  app
     .factory('SemanticSidebarLink', ['SemanticUI', SemanticSidebarLink])
     .directive('smSidebarBind', ['SemanticUI', SemanticSidebarBind])
     .directive('smSidebar', ['SemanticSidebarLink', SemanticSidebar])
@@ -2564,98 +2657,6 @@ angular.module('semantic-ui', [
   }
 
 })( angular.module('semantic-ui-sidebar', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
-    .factory('SemanticShapeLink', ['SemanticUI', SemanticShapeLink])
-    .directive('smShapeBind', ['SemanticUI', SemanticShapeBind])
-    .directive('smShape', ['SemanticShapeLink', SemanticShape])
-  ;
-
-  var BEHAVIORS = {
-    smShapeFlipUp:          'flip up',
-    smShapeFlipDown:        'flip down',
-    smShapeFlipLeft:        'flip left',
-    smShapeFlipRight:       'flip right',
-    smShapeFlipOver:        'flip over',
-    smShapeFlipBack:        'flip back',
-    smShapeSetNextSide:     'set next side',
-    smShapeReset:           'reset',
-    smShapeQueue:           'queue',
-    smShapeRepaint:         'repaint',
-    smShapeSetDefaultSide:  'set default side',
-    smShapeSetStageSize:    'set stage size',
-    smShapeRefresh:         'refresh'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI)
-    {
-      return SemanticUI.createBehavior( directive, 'shape', method );
-    }]);
-  });
-
-  function SemanticShapeBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smShapeBind', 'shape' );
-  }
-
-  function SemanticShape(SemanticShapeLink)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-
-        settings: '=',
-        onInit: '=',
-        /* Events */
-        onBeforeChange: '=',
-        onChange: '=',
-      },
-
-      template: [
-        '<div class="ui shape">',
-        ' <div class="sides" ng-transclude>',
-        ' </div>',
-        '</div>'
-      ].join('\n'),
-
-      link: SemanticShapeLink
-
-    };
-  }
-
-  function SemanticShapeLink(SemanticUI)
-  {
-    return function(scope, element, attributes)
-    {
-      var settings = scope.settings || {};
-
-      SemanticUI.linkSettings( scope, element, attributes, 'shape' );
-
-      SemanticUI.linkEvents( scope, settings, $.fn.shape.settings, {
-        onBeforeChange:   'onBeforeChange',
-        onChange:         'onChange'
-      });
-
-      element.shape( settings );
-
-      if ( angular.isFunction( scope.onInit ) ) {
-        scope.onInit( element );
-      }
-    };
-  }
-
-})( angular.module('semantic-ui-shape', ['semantic-ui-core']) );
 
 (function(app)
 {
