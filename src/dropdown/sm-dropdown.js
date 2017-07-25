@@ -136,7 +136,7 @@
     $scope.getDefaultText = function()
     {
       var defaultText = $scope.defaultText ? $scope.defaultText : '';
-      return ( $scope.isEmpty() ? defaultText : $scope.findMatchingItem($scope.model) );
+      return ( $scope.isEmpty() ? defaultText : $scope.translateValue($scope.findMatchingItem($scope.model)) );
     };
 
     // Finds an item instance that has the exact same value as the given value.
