@@ -195,41 +195,38 @@
 
         }, true );
       },
-      watcher: function(scope, expression, func, context, force, equals)
+      watcher: function (scope, expression, func, context, force, equals) 
       {
-        var ignoreUpdate = false;
+          var currentValue = angular.copy(scope[expression]);
 
-        scope.$watch( expression, function( updated )
-        {
-          if ( !ignoreUpdate )
+          scope.$watch(expression, function (updated) 
           {
-            func.call( context, updated );
-          }
-
-          ignoreUpdate = false;
-
-        }, equals );
-
-        return {
-          set: function(value)
-          {
-            if ( scope[ expression ] != value || force )
-            {
-              scope.$evalAsync(function()
+              if (!angular.equals(currentValue, updated)) 
               {
-                scope[ expression ] = value;
-                ignoreUpdate = true;
-              });
-            }
-          },
-          update: function()
-          {
-            scope.$evalAsync(function()
-            {
-              ignoreUpdate = true;
-            });
+                  func.call(context, updated);
+              }
+
+          }, equals);
+
+          return {
+              set: function (value) 
+              {
+                  if (scope[expression] != value || force) 
+                  {
+                      scope.$evalAsync(function () 
+                      {
+                          scope[expression] = value;
+                          currentValue = angular.copy(scope[expression]);
+                      });
+                  }
+              },
+              update: function () 
+              {
+                  scope.$evalAsync(function () 
+                  {
+                  });
+              }
           }
-        }
       },
       RecursiveCompiler: function(postLink)
       {
