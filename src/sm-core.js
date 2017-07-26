@@ -201,7 +201,7 @@
 
           scope.$watch(expression, function (updated) 
           {
-              if (!angular.equals(currentValue, updated)) 
+              if (expression != 'model' || !angular.equals(currentValue, updated)) 
               {
                   func.call(context, updated);
               }

@@ -234,7 +234,7 @@ angular.module('semantic-ui', [
 
           scope.$watch(expression, function (updated) 
           {
-              if (!angular.equals(currentValue, updated)) 
+              if (expression != 'model' || !angular.equals(currentValue, updated)) 
               {
                   func.call(context, updated);
               }
@@ -392,6 +392,117 @@ angular.module('semantic-ui', [
   }
 
 })( angular.module('semantic-ui-core', []) );
+
+(function(app)
+{
+
+  app
+    .factory('SemanticAccordionLink', ['SemanticUI', SemanticAccordionLink])
+    .directive('smAccordionBind', ['SemanticUI', SemanticAccordionBind])
+    .directive('smAccordion', ['SemanticAccordionLink', SemanticAccordion])
+    .directive('smAccordionGroup', SemanticAccordionGroup)
+  ;
+
+  var BEHAVIORS = {
+    smAccordionOpen:        'open',
+    smAccordionCloseOthers: 'close others',
+    smAccordionClose:       'close',
+    smAccordionToggle:      'toggle'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
+    {
+      return SemanticUI.createBehavior( directive, 'accordion', method );
+    }]);
+  });
+
+  function SemanticAccordionBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smAccordionBind', 'accordion' );
+  }
+
+  function SemanticAccordion(SemanticAccordionLink)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+        /* Optional */
+        settings: '=',
+        onInit: '=',
+        /* Events */
+        onOpening: '=',
+        onOpen: '=',
+        onClosing: '=',
+        onClose: '=',
+        onChange: '='
+      },
+
+      template: '<div class="ui accordion" ng-transclude></div>',
+
+      link: SemanticAccordionLink
+    };
+  }
+
+  function SemanticAccordionLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      element.ready(function()
+      {
+        var settings = scope.settings || {};
+
+        SemanticUI.linkSettings( scope, element, attributes, 'accordion', true );
+
+        SemanticUI.linkEvents( scope, settings, $.fn.accordion.settings, {
+          onOpening:  'onOpening',
+          onOpen:     'onOpen',
+          onClosing:  'onClosing',
+          onClose:    'onClose',
+          onChange:   'onChange'
+        });
+
+        element.accordion( settings );
+
+        if ( angular.isFunction( scope.onInit ) )
+        {
+          scope.onInit( element );
+        }
+      });
+    };
+  }
+
+  function SemanticAccordionGroup()
+  {
+    return {
+      restrict: 'E',
+      required: 'title',
+      transclude: true,
+      scope: {
+        /* Required */
+        title: '=',
+        /* Optional */
+        active: '='
+      },
+      template: [
+        '<div class="title" ng-class="{active: active}">',
+        '  <i class="dropdown icon"></i>',
+        '  {{ title }}',
+        '</div>',
+        '<div class="content" ng-class="{active: active}" ng-transclude>',
+        '</div>'
+      ].join('\n')
+    }
+  }
+
+})( angular.module('semantic-ui-accordion', ['semantic-ui-core']) );
 
 (function(app)
 {
@@ -782,250 +893,6 @@ angular.module('semantic-ui', [
 {
 
   app
-    .factory('SemanticAccordionLink', ['SemanticUI', SemanticAccordionLink])
-    .directive('smAccordionBind', ['SemanticUI', SemanticAccordionBind])
-    .directive('smAccordion', ['SemanticAccordionLink', SemanticAccordion])
-    .directive('smAccordionGroup', SemanticAccordionGroup)
-  ;
-
-  var BEHAVIORS = {
-    smAccordionOpen:        'open',
-    smAccordionCloseOthers: 'close others',
-    smAccordionClose:       'close',
-    smAccordionToggle:      'toggle'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI)
-    {
-      return SemanticUI.createBehavior( directive, 'accordion', method );
-    }]);
-  });
-
-  function SemanticAccordionBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smAccordionBind', 'accordion' );
-  }
-
-  function SemanticAccordion(SemanticAccordionLink)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-        /* Optional */
-        settings: '=',
-        onInit: '=',
-        /* Events */
-        onOpening: '=',
-        onOpen: '=',
-        onClosing: '=',
-        onClose: '=',
-        onChange: '='
-      },
-
-      template: '<div class="ui accordion" ng-transclude></div>',
-
-      link: SemanticAccordionLink
-    };
-  }
-
-  function SemanticAccordionLink(SemanticUI)
-  {
-    return function(scope, element, attributes)
-    {
-      element.ready(function()
-      {
-        var settings = scope.settings || {};
-
-        SemanticUI.linkSettings( scope, element, attributes, 'accordion', true );
-
-        SemanticUI.linkEvents( scope, settings, $.fn.accordion.settings, {
-          onOpening:  'onOpening',
-          onOpen:     'onOpen',
-          onClosing:  'onClosing',
-          onClose:    'onClose',
-          onChange:   'onChange'
-        });
-
-        element.accordion( settings );
-
-        if ( angular.isFunction( scope.onInit ) )
-        {
-          scope.onInit( element );
-        }
-      });
-    };
-  }
-
-  function SemanticAccordionGroup()
-  {
-    return {
-      restrict: 'E',
-      required: 'title',
-      transclude: true,
-      scope: {
-        /* Required */
-        title: '=',
-        /* Optional */
-        active: '='
-      },
-      template: [
-        '<div class="title" ng-class="{active: active}">',
-        '  <i class="dropdown icon"></i>',
-        '  {{ title }}',
-        '</div>',
-        '<div class="content" ng-class="{active: active}" ng-transclude>',
-        '</div>'
-      ].join('\n')
-    }
-  }
-
-})( angular.module('semantic-ui-accordion', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
-    .controller('SemanticCommentsController', ['$scope', SemanticCommentsController])
-    .directive('smComments', ['SemanticUI', SemanticComments])
-  ;
-
-  function SemanticComments(SemanticUI)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      // transclude: true,
-
-      scope: {
-        /* Required */
-        comments: '=',
-        content: '&',
-        /* Optional */
-        avatar: '&',
-        author: '&',
-        date: '&',
-        replies: '&',
-        reply: '=',
-        collapsible: '=',
-
-        onAuthor: '&',
-        onReply: '&',
-        onShowReplies: '&',
-        onHideReplies: '&'
-      },
-
-      template: [
-        '<div class="ui comments">',
-        ' <div class="comment" ng-repeat="c in comments" ng-init="$ = {comment: c}; c.$isCollapsed = true;">',
-        '  <a ng-if="avatar($)" class="avatar" ng-click="onAuthor({comment: c, $event: $event})">',
-        '    <img ng-src="{{ avatar($) }}">',
-        '  </a>',
-        '  <div class="content">',
-        '   <a class="author" ng-click="onAuthor({comment: c, $event: $event})" sm-html="author($)"></a>',
-        '   <div class="metadata">',
-        '    <span class="date" sm-time-ago="date($)"></span>',
-        '   </div>',
-        '   <div class="text" sm-html="content($)"></div>',
-        '   <div class="actions">',
-        '     <a class="reply" ng-click="onReply({comment: c, $event: $event})" ng-if="reply">Reply</a>',
-        '     <a class="show-replies" ng-if="reply && collapsible && c.$isCollapsed" href ng-click="setCollapsed(c, $event, false)" sm-html="getShowRepliesText($)"></a>',
-        '     <a class="hide-replies" ng-if="reply && collapsible && !c.$isCollapsed" href ng-click="setCollapsed(c, $event, true)" sm-html="getHideRepliesText($)"></a>',
-        '   </div>',
-        '  </div>',
-        '  <sm-comments ng-if="hasReplies($)" ng-class="{collapsed: collapsible && c.$isCollapsed}" comments="replies($)" content="content({comment: comment})" avatar="avatar({comment: comment})" author="author({comment: comment})" date="date({comment: comment})" replies="replies({comment: comment})" reply="reply" collapsible="collapsible"',
-        '     on-author="onAuthor({comment: comment, $event: $event})" on-reply="onReply({comment: comment, $event: $event})" on-show-replies="onShowReplies({comment: comment, $event: $event})" on-hide-replies="onHideReplies({comment: comment, $event: $event})"></sm-comments>',
-        ' </div>',
-        '</div>'
-      ].join('\n'),
-
-      controller: 'SemanticCommentsController',
-
-      compile: SemanticUI.RecursiveCompiler()
-
-    };
-  }
-
-  function SemanticCommentsController($scope)
-  {
-    $scope.setCollapsed = function(comment, $event, collapse)
-    {
-      var $ = {comment: comment, $event: $event};
-
-      if ( comment.$isCollapsed != collapse )
-      {
-        if ( comment.$isCollapsed )
-        {
-          if ( $scope.onShowReplies($) !== false )
-          {
-            comment.$isCollapsed = false;
-          }
-        }
-        else
-        {
-          if ( $scope.onHideReplies($) !== false )
-          {
-            comment.$isCollapsed = true;
-          }
-        }
-      }
-    };
-
-    $scope.hasReplies = function($)
-    {
-      if ( !$scope.reply )
-      {
-        return false;
-      }
-
-      var replies = $scope.replies($);
-
-      return replies && replies.length;
-    };
-
-    $scope.getReplyCount = function($)
-    {
-      if ( !$scope.reply )
-      {
-        return false;
-      }
-
-      var replies = $scope.replies($);
-
-      return replies ? replies.length : 0;
-    };
-
-    $scope.getShowRepliesText = function($)
-    {
-      var count = $scope.getReplyCount($);
-
-      return count === 0 ? '' : (count === 1 ? 'Show Reply' : 'Show Replies (' + count + ')');
-    };
-
-    $scope.getHideRepliesText = function($)
-    {
-      var count = $scope.getReplyCount($);
-
-      return count === 0 ? '' : (count === 1 ? 'Hide Reply' : 'Hide Replies (' + count + ')');
-    };
-  }
-
-})( angular.module('semantic-ui-comment', ['semantic-ui-core', 'semantic-ui-timeago']) );
-
-(function(app)
-{
-
-  app
     .controller('SemanticDropdownController', ['$scope', SemanticDropdownController])
     .factory('SemanticDropdownLink', ['SemanticUI', '$timeout', SemanticDropdownLink])
     .directive('smDropdownBind', ['SemanticUI', SemanticDropdownBind])
@@ -1186,7 +1053,7 @@ angular.module('semantic-ui', [
     return function (scope, element, attributes) {
       var applyValue = function (value) {
         $timeout(function () {
-          if (!value) {
+          if (value == null) {
             element.dropdown('clear');
           } 
           else if (element.dropdown('is multiple')) {
@@ -1347,6 +1214,139 @@ angular.module('semantic-ui', [
   }
 
 })( angular.module('semantic-ui-dropdown', ['semantic-ui-core']) );
+
+(function(app)
+{
+
+  app
+    .controller('SemanticCommentsController', ['$scope', SemanticCommentsController])
+    .directive('smComments', ['SemanticUI', SemanticComments])
+  ;
+
+  function SemanticComments(SemanticUI)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      // transclude: true,
+
+      scope: {
+        /* Required */
+        comments: '=',
+        content: '&',
+        /* Optional */
+        avatar: '&',
+        author: '&',
+        date: '&',
+        replies: '&',
+        reply: '=',
+        collapsible: '=',
+
+        onAuthor: '&',
+        onReply: '&',
+        onShowReplies: '&',
+        onHideReplies: '&'
+      },
+
+      template: [
+        '<div class="ui comments">',
+        ' <div class="comment" ng-repeat="c in comments" ng-init="$ = {comment: c}; c.$isCollapsed = true;">',
+        '  <a ng-if="avatar($)" class="avatar" ng-click="onAuthor({comment: c, $event: $event})">',
+        '    <img ng-src="{{ avatar($) }}">',
+        '  </a>',
+        '  <div class="content">',
+        '   <a class="author" ng-click="onAuthor({comment: c, $event: $event})" sm-html="author($)"></a>',
+        '   <div class="metadata">',
+        '    <span class="date" sm-time-ago="date($)"></span>',
+        '   </div>',
+        '   <div class="text" sm-html="content($)"></div>',
+        '   <div class="actions">',
+        '     <a class="reply" ng-click="onReply({comment: c, $event: $event})" ng-if="reply">Reply</a>',
+        '     <a class="show-replies" ng-if="reply && collapsible && c.$isCollapsed" href ng-click="setCollapsed(c, $event, false)" sm-html="getShowRepliesText($)"></a>',
+        '     <a class="hide-replies" ng-if="reply && collapsible && !c.$isCollapsed" href ng-click="setCollapsed(c, $event, true)" sm-html="getHideRepliesText($)"></a>',
+        '   </div>',
+        '  </div>',
+        '  <sm-comments ng-if="hasReplies($)" ng-class="{collapsed: collapsible && c.$isCollapsed}" comments="replies($)" content="content({comment: comment})" avatar="avatar({comment: comment})" author="author({comment: comment})" date="date({comment: comment})" replies="replies({comment: comment})" reply="reply" collapsible="collapsible"',
+        '     on-author="onAuthor({comment: comment, $event: $event})" on-reply="onReply({comment: comment, $event: $event})" on-show-replies="onShowReplies({comment: comment, $event: $event})" on-hide-replies="onHideReplies({comment: comment, $event: $event})"></sm-comments>',
+        ' </div>',
+        '</div>'
+      ].join('\n'),
+
+      controller: 'SemanticCommentsController',
+
+      compile: SemanticUI.RecursiveCompiler()
+
+    };
+  }
+
+  function SemanticCommentsController($scope)
+  {
+    $scope.setCollapsed = function(comment, $event, collapse)
+    {
+      var $ = {comment: comment, $event: $event};
+
+      if ( comment.$isCollapsed != collapse )
+      {
+        if ( comment.$isCollapsed )
+        {
+          if ( $scope.onShowReplies($) !== false )
+          {
+            comment.$isCollapsed = false;
+          }
+        }
+        else
+        {
+          if ( $scope.onHideReplies($) !== false )
+          {
+            comment.$isCollapsed = true;
+          }
+        }
+      }
+    };
+
+    $scope.hasReplies = function($)
+    {
+      if ( !$scope.reply )
+      {
+        return false;
+      }
+
+      var replies = $scope.replies($);
+
+      return replies && replies.length;
+    };
+
+    $scope.getReplyCount = function($)
+    {
+      if ( !$scope.reply )
+      {
+        return false;
+      }
+
+      var replies = $scope.replies($);
+
+      return replies ? replies.length : 0;
+    };
+
+    $scope.getShowRepliesText = function($)
+    {
+      var count = $scope.getReplyCount($);
+
+      return count === 0 ? '' : (count === 1 ? 'Show Reply' : 'Show Replies (' + count + ')');
+    };
+
+    $scope.getHideRepliesText = function($)
+    {
+      var count = $scope.getReplyCount($);
+
+      return count === 0 ? '' : (count === 1 ? 'Hide Reply' : 'Hide Replies (' + count + ')');
+    };
+  }
+
+})( angular.module('semantic-ui-comment', ['semantic-ui-core', 'semantic-ui-timeago']) );
 
 (function(app)
 {
@@ -1817,164 +1817,6 @@ angular.module('semantic-ui', [
 {
 
   app
-    .factory('SemanticProgressLink', ['SemanticUI', SemanticProgressLink])
-    .directive('smProgressBind', ['SemanticUI', SemanticModalBind])
-    .directive('smProgress', ['SemanticProgressLink', SemanticProgress])
-  ;
-
-  var BEHAVIORS = {
-    'smProgressIncrement': 'increment'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI)
-    {
-      return SemanticUI.createBehavior( directive, 'progress', method );
-    }]);
-  });
-
-  function SemanticModalBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smProgressBind', 'progress' );
-  }
-
-  function SemanticProgress(SemanticProgressLink)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-        /* Required */
-        model: '=',
-        /* Optional */
-        total: '=',
-        label: '@',
-        activeText: '@',
-        successText: '@',
-        errorText: '@',
-        warningText: '@',
-        duration: '@',
-        onInit: '=',
-        /* Events */
-        onChange: '=',
-        onSuccess: '=',
-        onActive: '=',
-        onError: '=',
-        onWarning: '='
-      },
-
-      template: [
-        '<div class="ui progress">',
-        '  <div class="bar">',
-        '    <div class="progress" ng-show="label"></div>',
-        '  </div>',
-        '  <div class="label" ng-transclude></div>',
-        '</div>'
-      ].join('\n'),
-
-      link: SemanticProgressLink
-    };
-  }
-
-  function SemanticProgressLink(SemanticUI)
-  {
-    var addText = function( scope, attributes, settings, attribute, property )
-    {
-      if ( angular.isDefined( attributes[ attribute ] ) )
-      {
-        settings.text = settings.text || {};
-        settings.text[ property ] = scope[ attribute ];
-      }
-    };
-
-    return function(scope, element, attributes)
-    {
-      var settings = scope.settings || {};
-
-      SemanticUI.linkSettings( scope, element, attributes, 'progress' );
-
-      SemanticUI.linkEvents( scope, settings, $.fn.progress.settings, {
-        onChange:   'onChange',
-        onSuccess:  'onSuccess',
-        onActive:   'onActive',
-        onError:    'onError',
-        onWarning:  'onWarning'
-      });
-
-      if ( !angular.isDefined( settings.showActivity ) )
-      {
-        settings.showActivity = false;
-      }
-
-      if ( angular.isDefined( attributes.label ) )
-      {
-        settings.label = scope.label;
-      }
-
-      if ( angular.isDefined( attributes.total ) )
-      {
-        settings.total = scope.total;
-      }
-      else
-      {
-        settings.total = 100;
-      }
-
-      if ( angular.isDefined( attributes.model ) )
-      {
-        settings.value = scope.model;
-      }
-
-      addText( scope, attributes, settings, 'activeText', 'active' );
-      addText( scope, attributes, settings, 'successText', 'success' );
-      addText( scope, attributes, settings, 'errorText', 'error' );
-      addText( scope, attributes, settings, 'warningText', 'warning' );
-
-      element.progress( settings );
-
-      SemanticUI.watcher( scope, 'model', function(value)
-      {
-        var total = element.progress( 'get total' ) || 100;
-
-        element.progress( 'set percent', value * 100 / total );
-        element.progress( 'set value', value );
-      });
-
-      if ( angular.isDefined( attributes.duration ) )
-      {
-        SemanticUI.watcher( scope, 'duration', function(duration)
-        {
-          element.progress( 'set duration', duration );
-        });
-      }
-
-      if ( angular.isDefined( attributes.total ) )
-      {
-        SemanticUI.watcher( scope, 'total', function(total)
-        {
-          element.progress( 'set total', total );
-        });
-      }
-
-      if ( angular.isFunction( scope.onInit ) )
-      {
-        scope.onInit( element );
-      }
-    };
-  }
-
-})( angular.module('semantic-ui-progress', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
     .factory('SemanticPopupLink', ['SemanticUI', SemanticPopupLink])
     .factory('SemanticPopupInlineLink', ['SemanticUI', SemanticPopupInlineLink])
     .factory('SemanticPopupDisplayLink', ['SemanticUI', SemanticPopupDisplayLink])
@@ -2199,32 +2041,29 @@ angular.module('semantic-ui', [
 {
 
   app
-    .factory('SemanticRatingLink', ['SemanticUI', SemanticRatingLink])
-    .directive('smRatingBind', ['SemanticUI', SemanticRatingBind])
-    .directive('smRating', ['SemanticRatingLink', SemanticRating])
+    .factory('SemanticProgressLink', ['SemanticUI', SemanticProgressLink])
+    .directive('smProgressBind', ['SemanticUI', SemanticModalBind])
+    .directive('smProgress', ['SemanticProgressLink', SemanticProgress])
   ;
 
   var BEHAVIORS = {
-    smRatingSet:        'set rating',
-    smRatingDisable:    'disable',
-    smRatingEnable:     'enable',
-    smRatingClear:      'clear rating'
+    'smProgressIncrement': 'increment'
   };
 
   angular.forEach( BEHAVIORS, function(method, directive)
   {
     app.directive( directive, ['SemanticUI', function(SemanticUI)
     {
-      return SemanticUI.createBehavior( directive, 'rating', method );
+      return SemanticUI.createBehavior( directive, 'progress', method );
     }]);
   });
 
-  function SemanticRatingBind(SemanticUI)
+  function SemanticModalBind(SemanticUI)
   {
-    return SemanticUI.createBind( 'smRatingBind', 'rating' );
+    return SemanticUI.createBind( 'smProgressBind', 'progress' );
   }
 
-  function SemanticRating(SemanticRatingLink)
+  function SemanticProgress(SemanticProgressLink)
   {
     return {
 
@@ -2232,77 +2071,129 @@ angular.module('semantic-ui', [
 
       replace: true,
 
+      transclude: true,
+
       scope: {
         /* Required */
         model: '=',
-        total: '=',
         /* Optional */
-        type: '@',
-        disabled: '=',
-        settings: '=',
+        total: '=',
+        label: '@',
+        activeText: '@',
+        successText: '@',
+        errorText: '@',
+        warningText: '@',
+        duration: '@',
         onInit: '=',
         /* Events */
-        onRate: '='
+        onChange: '=',
+        onSuccess: '=',
+        onActive: '=',
+        onError: '=',
+        onWarning: '='
       },
 
-      template: '<div class="ui rating {{ type }}" data-rating="{{ model }}" data-max-rating="{{ total }}"></div>',
+      template: [
+        '<div class="ui progress">',
+        '  <div class="bar">',
+        '    <div class="progress" ng-show="label"></div>',
+        '  </div>',
+        '  <div class="label" ng-transclude></div>',
+        '</div>'
+      ].join('\n'),
 
-      link: SemanticRatingLink
+      link: SemanticProgressLink
     };
   }
 
-  function SemanticRatingLink(SemanticUI)
+  function SemanticProgressLink(SemanticUI)
   {
+    var addText = function( scope, attributes, settings, attribute, property )
+    {
+      if ( angular.isDefined( attributes[ attribute ] ) )
+      {
+        settings.text = settings.text || {};
+        settings.text[ property ] = scope[ attribute ];
+      }
+    };
+
     return function(scope, element, attributes)
     {
-      element.ready(function()
-      {
-        var settings = scope.settings || {};
+      var settings = scope.settings || {};
 
-        SemanticUI.linkSettings( scope, element, attributes, 'rating', true );
+      SemanticUI.linkSettings( scope, element, attributes, 'progress' );
 
-        SemanticUI.triggerChange( scope, 'model', element, true );
-
-        if ( attributes.disabled )
-        {
-          var disabledWatcher = SemanticUI.watcher( scope, 'disabled',
-            function(updated) {
-              element.rating( updated ? 'disable' : 'enable' );
-            }
-          );
-        }
-
-        var valueWatcher = SemanticUI.watcher( scope, 'model',
-          function(updated) {
-            element.rating( 'set rating', updated );
-          }
-        );
-
-        SemanticUI.onEvent( settings, 'onRate',
-          function(value) {
-            valueWatcher.set( value );
-          }
-        );
-
-        SemanticUI.linkEvents( scope, settings, $.fn.rating.settings, {
-          onRate: 'onRate'
-        });
-
-        element.rating( settings );
-
-        if ( scope.disabled )
-        {
-          element.rating( 'disable' );
-        }
-
-        if ( angular.isFunction( scope.onInit ) ) {
-          scope.onInit( element );
-        }
+      SemanticUI.linkEvents( scope, settings, $.fn.progress.settings, {
+        onChange:   'onChange',
+        onSuccess:  'onSuccess',
+        onActive:   'onActive',
+        onError:    'onError',
+        onWarning:  'onWarning'
       });
+
+      if ( !angular.isDefined( settings.showActivity ) )
+      {
+        settings.showActivity = false;
+      }
+
+      if ( angular.isDefined( attributes.label ) )
+      {
+        settings.label = scope.label;
+      }
+
+      if ( angular.isDefined( attributes.total ) )
+      {
+        settings.total = scope.total;
+      }
+      else
+      {
+        settings.total = 100;
+      }
+
+      if ( angular.isDefined( attributes.model ) )
+      {
+        settings.value = scope.model;
+      }
+
+      addText( scope, attributes, settings, 'activeText', 'active' );
+      addText( scope, attributes, settings, 'successText', 'success' );
+      addText( scope, attributes, settings, 'errorText', 'error' );
+      addText( scope, attributes, settings, 'warningText', 'warning' );
+
+      element.progress( settings );
+
+      SemanticUI.watcher( scope, 'model', function(value)
+      {
+        var total = element.progress( 'get total' ) || 100;
+
+        element.progress( 'set percent', value * 100 / total );
+        element.progress( 'set value', value );
+      });
+
+      if ( angular.isDefined( attributes.duration ) )
+      {
+        SemanticUI.watcher( scope, 'duration', function(duration)
+        {
+          element.progress( 'set duration', duration );
+        });
+      }
+
+      if ( angular.isDefined( attributes.total ) )
+      {
+        SemanticUI.watcher( scope, 'total', function(total)
+        {
+          element.progress( 'set total', total );
+        });
+      }
+
+      if ( angular.isFunction( scope.onInit ) )
+      {
+        scope.onInit( element );
+      }
     };
   }
 
-})( angular.module('semantic-ui-rating', ['semantic-ui-core']) );
+})( angular.module('semantic-ui-progress', ['semantic-ui-core']) );
 
 (function(app)
 {
@@ -2434,6 +2325,115 @@ angular.module('semantic-ui', [
   }
 
 })( angular.module('semantic-ui-search', ['semantic-ui-core']) );
+
+(function(app)
+{
+
+  app
+    .factory('SemanticRatingLink', ['SemanticUI', SemanticRatingLink])
+    .directive('smRatingBind', ['SemanticUI', SemanticRatingBind])
+    .directive('smRating', ['SemanticRatingLink', SemanticRating])
+  ;
+
+  var BEHAVIORS = {
+    smRatingSet:        'set rating',
+    smRatingDisable:    'disable',
+    smRatingEnable:     'enable',
+    smRatingClear:      'clear rating'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
+    {
+      return SemanticUI.createBehavior( directive, 'rating', method );
+    }]);
+  });
+
+  function SemanticRatingBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smRatingBind', 'rating' );
+  }
+
+  function SemanticRating(SemanticRatingLink)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      scope: {
+        /* Required */
+        model: '=',
+        total: '=',
+        /* Optional */
+        type: '@',
+        disabled: '=',
+        settings: '=',
+        onInit: '=',
+        /* Events */
+        onRate: '='
+      },
+
+      template: '<div class="ui rating {{ type }}" data-rating="{{ model }}" data-max-rating="{{ total }}"></div>',
+
+      link: SemanticRatingLink
+    };
+  }
+
+  function SemanticRatingLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      element.ready(function()
+      {
+        var settings = scope.settings || {};
+
+        SemanticUI.linkSettings( scope, element, attributes, 'rating', true );
+
+        SemanticUI.triggerChange( scope, 'model', element, true );
+
+        if ( attributes.disabled )
+        {
+          var disabledWatcher = SemanticUI.watcher( scope, 'disabled',
+            function(updated) {
+              element.rating( updated ? 'disable' : 'enable' );
+            }
+          );
+        }
+
+        var valueWatcher = SemanticUI.watcher( scope, 'model',
+          function(updated) {
+            element.rating( 'set rating', updated );
+          }
+        );
+
+        SemanticUI.onEvent( settings, 'onRate',
+          function(value) {
+            valueWatcher.set( value );
+          }
+        );
+
+        SemanticUI.linkEvents( scope, settings, $.fn.rating.settings, {
+          onRate: 'onRate'
+        });
+
+        element.rating( settings );
+
+        if ( scope.disabled )
+        {
+          element.rating( 'disable' );
+        }
+
+        if ( angular.isFunction( scope.onInit ) ) {
+          scope.onInit( element );
+        }
+      });
+    };
+  }
+
+})( angular.module('semantic-ui-rating', ['semantic-ui-core']) );
 
 (function(app)
 {

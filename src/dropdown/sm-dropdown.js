@@ -162,7 +162,7 @@
     return function (scope, element, attributes) {
       var applyValue = function (value) {
         $timeout(function () {
-          if (!value) {
+          if (value == null) {
             element.dropdown('clear');
           } 
           else if (element.dropdown('is multiple')) {
