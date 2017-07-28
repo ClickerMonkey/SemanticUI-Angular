@@ -162,7 +162,10 @@
     return function (scope, element, attributes) {
       var applyValue = function (value) {
         $timeout(function () {
-          if (element.dropdown('is multiple')) {
+          if (value == null) {
+            element.dropdown('clear');
+          } 
+          else if (element.dropdown('is multiple')) {
             if (value instanceof Array) {
               var translatedValue = [];
 
@@ -176,8 +179,7 @@
 
               element.dropdown('set exactly', translatedValue);
             }
-          }
-          else {
+          } else {
             element.dropdown('set selected', scope.translateValue(value));
           }
         }, 0);
