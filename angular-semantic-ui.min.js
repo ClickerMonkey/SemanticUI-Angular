@@ -1,5 +1,5 @@
 /**
- * semantic-ui-angular-jquery - 0.2.2
+ * semantic-ui-angular-jquery - 0.2.3
  * Angular Directives for Semantic UI
  * 
  * https://github.com/ClickerMonkey/SemanticUI-Angular
