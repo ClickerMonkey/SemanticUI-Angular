@@ -1290,7 +1290,7 @@ angular.module('semantic-ui', [
           if (value === null) {
             element.dropdown('clear');
           } else if(value === false){
-            element.dropdown('reset');
+            // Do nothing
           }
           else if (element.dropdown('is multiple')) {
             if (value instanceof Array) {
