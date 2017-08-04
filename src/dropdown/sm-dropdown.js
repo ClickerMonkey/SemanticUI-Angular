@@ -162,9 +162,11 @@
     return function (scope, element, attributes) {
       var applyValue = function (value) {
         $timeout(function () {
-          if (value == null) {
+          if (value === null) {
             element.dropdown('clear');
-          } 
+          } else if(value === false){
+            // Do nothing
+          }
           else if (element.dropdown('is multiple')) {
             if (value instanceof Array) {
               var translatedValue = [];

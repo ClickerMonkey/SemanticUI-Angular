@@ -1,7 +1,7 @@
 /**
- * semantic-ui-angular-jquery - 0.2.3
+ * semantic-ui-angular-jquery - 0.2.4
  * Angular Directives for Semantic UI
- * 
+ *
  * https://github.com/ClickerMonkey/SemanticUI-Angular
  * Released under the MIT license.
  * Copyright 2017 Philip Diffenderfer and contributors.
@@ -228,13 +228,13 @@ angular.module('semantic-ui', [
 
         }, true );
       },
-      watcher: function (scope, expression, func, context, force, equals) 
+      watcher: function (scope, expression, func, context, force, equals)
       {
           var currentValue = angular.copy(scope[expression]);
 
-          scope.$watch(expression, function (updated) 
+          scope.$watch(expression, function (updated)
           {
-              if (expression != 'model' || !angular.equals(currentValue, updated)) 
+              if (expression != 'model' || !angular.equals(currentValue, updated))
               {
                   func.call(context, updated);
               }
@@ -242,20 +242,20 @@ angular.module('semantic-ui', [
           }, equals);
 
           return {
-              set: function (value) 
+              set: function (value)
               {
-                  if (scope[expression] != value || force) 
+                  if (scope[expression] != value || force)
                   {
-                      scope.$evalAsync(function () 
+                      scope.$evalAsync(function ()
                       {
                           scope[expression] = value;
                           currentValue = angular.copy(scope[expression]);
                       });
                   }
               },
-              update: function () 
+              update: function ()
               {
-                  scope.$evalAsync(function () 
+                  scope.$evalAsync(function ()
                   {
                   });
               }
@@ -1287,9 +1287,11 @@ angular.module('semantic-ui', [
     return function (scope, element, attributes) {
       var applyValue = function (value) {
         $timeout(function () {
-          if (value == null) {
+          if (value === null) {
             element.dropdown('clear');
-          } 
+          } else if(value === false){
+            // Do nothing
+          }
           else if (element.dropdown('is multiple')) {
             if (value instanceof Array) {
               var translatedValue = [];
