@@ -162,7 +162,7 @@
     return function (scope, element, attributes) {
       var applyValue = function (value) {
         $timeout(function () {
-          if (value === null) {
+          if (value == null) {
             element.dropdown('clear');
           } else if(value === false){
             // Do nothing
